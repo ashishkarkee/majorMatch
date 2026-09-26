@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Major Fit — UC Transfer Data</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink: #142033;
+    --ink-2: #1d2f4d;
+    --paper: #FAF6EC;
+    --paper-dim: #EFE8D8;
+    --gold: #B5822E;
+    --gold-bright: #D6A64C;
+    --sage: #5E7A5C;
+    --clay: #A9532F;
+    --blue: #3E6B8A;
+    --blue-bright: #5A8CAE;
+    --blue-deep: #1F4258;
+    --yellow: #B8912A;
+    --red: #B03A2E;
+    --dark-green: #1E5738;
+    --purple-pink: #A15B8F;
+    --purple-pink-bright: #BE79A9;
+    --line: rgba(20,32,51,0.12);
+    --line-paper: rgba(250,246,236,0.16);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{ max-width: 920px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  header.hero{ margin-bottom: 48px; }
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    margin-bottom: 14px;
+  }
+  h1{
+    font-family: 'Source Serif 4', serif;
+    font-weight: 700;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.08;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  h1 em{ font-style: italic; color: var(--gold-bright); }
+  .sub{
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(250,246,236,0.72);
+    max-width: 58ch;
+  }
+  .stat-line{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    color: var(--gold-bright);
+    margin-top: 18px;
+  }
+
+  /* form panel styled like a transcript intake card */
+  .panel{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 30px 60px -25px rgba(0,0,0,0.55);
+  }
+  .panel::before{
+    content: '';
+    position: absolute; top:0; left:0; right:0; height: 4px;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 50%, var(--gold) 100%);
+  }
+  .field-row{ display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 22px; }
+  @media (max-width: 620px){ .field-row{ grid-template-columns: 1fr; } }
+  label{
+    display:block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(20,32,51,0.55);
+    margin-bottom: 8px;
+  }
+  label.label-blue{ color: var(--blue); font-weight: 600; }
+  label.label-gold{ color: var(--gold); font-weight: 600; }
+  input[type="text"], input[type="number"]{
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--line);
+    padding: 8px 2px 10px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 22px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .2s ease;
+  }
+  input::placeholder{ color: rgba(20,32,51,0.32); font-style: italic; }
+  input:focus{ border-bottom-color: var(--gold); }
+
+  .campus-block{ margin-bottom: 24px; }
+  .campus-grid{
+    display:flex; flex-wrap: wrap; gap: 8px;
+  }
+  .campus-chip{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    border: 1.5px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .campus-chip .box{
+    width: 12px; height: 12px; border-radius: 3px;
+    border: 1.5px solid rgba(20,32,51,0.4);
+    display:inline-block;
+    position: relative;
+  }
+  .campus-chip.checked{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .campus-chip.checked .box{ background: var(--gold-bright); border-color: var(--gold-bright); }
+  .campus-chip.disabled{
+    opacity: 0.4; cursor: not-allowed; border-style: dashed;
+  }
+  .campus-chip.disabled:hover{ background: transparent; }
+
+  .submit-row{ display:flex; align-items:center; gap:16px; margin-top: 8px; }
+  button.go{
+    position: relative;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color: var(--ink);
+    font-weight: 600;
+    border: none;
+    padding: 14px 30px 14px 26px;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -8px rgba(181,130,46,0.55);
+    transition: background .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+  button.go:hover{ box-shadow: 0 10px 24px -8px rgba(181,130,46,0.7); transform: translateY(-1px); }
+  button.go:active{ transform: scale(0.98); }
+  button.go:disabled{ opacity: 0.5; cursor: default; box-shadow: none; }
+  button.go .sparkle{
+    position: absolute;
+    top: -6px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    color: var(--paper);
+    filter: drop-shadow(0 1px 3px rgba(20,32,51,0.4));
+    animation: sparkle-pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes sparkle-pulse{
+    0%, 100%{ transform: scale(1) rotate(0deg); opacity: 1; }
+    50%{ transform: scale(1.18) rotate(8deg); opacity: 0.85; }
+  }
+  .hint{ font-size: 13px; color: rgba(20,32,51,0.5); }
+
+  /* results */
+  .results{ margin-top: 44px; }
+  .section-label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    margin: 0 0 16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-label::after{ content:''; flex:1; height:1px; background: var(--line-paper); }
+
+  .note{
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(250,246,236,0.85);
+    margin: 0 0 32px;
+    max-width: 62ch;
+  }
+
+  .cards{ display: grid; gap: 14px; margin-bottom: 40px; }
+
+  .card{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    border-left: 4px solid var(--line);
+  }
+  .card.pick-card{ border-left-color: var(--blue); }
+  .card.alt-card{ border-left-color: var(--purple-pink); }
+
+  .card .top-row{
+    display:flex; justify-content: space-between; align-items:flex-start; gap: 16px; margin-bottom: 10px;
+  }
+  .card .campus{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing:0.08em; text-transform:uppercase;
+    color: rgba(20,32,51,0.55);
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 3px;
+  }
+  .pick-card .campus{ background: rgba(62,107,138,0.14); color: var(--blue); font-weight: 600; }
+  .alt-card .campus{ background: rgba(161,91,143,0.14); color: var(--purple-pink); font-weight: 600; }
+  .card .major{
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 21px;
+    margin: 4px 0 0;
+  }
+  .fit-tag{
+    font-family:'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase;
+    padding: 5px 10px; border-radius: 20px; white-space: nowrap; height: fit-content;
+  }
+  .fit-safety{
+    background: linear-gradient(135deg, var(--blue-deep), var(--gold-bright));
+    color: #fff;
+  }
+  .fit-match{ background: rgba(30,87,56,0.16); color: var(--dark-green); }
+  .fit-reach{ background: rgba(176,58,46,0.15); color: var(--red); }
+
+  .gpa-bar{
+    position: relative;
+    height: 8px;
+    background: var(--paper-dim);
+    border-radius: 4px;
+    margin: 16px 0 6px;
+  }
+  .gpa-bar .range{
+    position: absolute; top:0; bottom:0;
+    background: rgba(181,130,46,0.35);
+    border-radius: 4px;
+  }
+  .gpa-bar .marker{
+    position: absolute; top: -5px;
+    width: 3px; height: 18px;
+    background: var(--ink);
+    border-radius: 2px;
+  }
+  .gpa-bar .marker::after{
+    content: attr(data-gpa);
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    font-family:'IBM Plex Mono', monospace; font-size: 10.5px; font-weight: 600; color: var(--ink);
+    white-space: nowrap;
+  }
+  .bar-labels{
+    display:flex; justify-content: space-between;
+    font-family:'IBM Plex Mono', monospace; font-size: 10.5px; color: rgba(20,32,51,0.45);
+    margin-bottom: 14px;
+  }
+
+  .stats-row{
+    display:flex; gap: 22px; font-family:'IBM Plex Mono', monospace; font-size: 12px; color: rgba(20,32,51,0.6);
+    margin-bottom: 12px;
+  }
+  .stats-row strong{ color: var(--ink); }
+  .stats-row strong.admit-rate{
+    color: var(--gold);
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+
+  .reasoning{
+    font-size: 14px; line-height: 1.55; color: rgba(20,32,51,0.78);
+    border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px;
+  }
+
+  .alt-card .major{ font-size: 18px; }
+
+  /* final plan table */
+  .final-plan{
+    margin-top: 8px;
+  }
+  .plan-table{
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border-radius: 3px;
+    overflow: hidden;
+    font-size: 13.5px;
+  }
+  .plan-table th{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    color: rgba(20,32,51,0.55);
+    background: var(--paper-dim);
+    padding: 10px 14px;
+  }
+  .plan-table td{
+    padding: 12px 14px;
+    color: var(--ink);
+    border-top: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .plan-table .campus-cell{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .plan-major{
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+  .plan-entry{ margin-bottom: 10px; }
+  .plan-entry:last-child{ margin-bottom: 0; }
+  .plan-admit-rate{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .plan-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+  .plan-badge.safety{ background: linear-gradient(135deg, var(--blue-deep), var(--gold-bright)); color: #fff; }
+  .plan-badge.match{ background: rgba(30,87,56,0.16); color: var(--dark-green); }
+  .plan-badge.reach{ background: rgba(176,58,46,0.15); color: var(--red); }
+  .plan-empty{ color: rgba(20,32,51,0.4); font-style: italic; font-size: 13px; }
+
+  .state{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: rgba(250,246,236,0.55);
+    padding: 20px 0;
+  }
+  .state.error{ color: #E0A18A; }
+
+  .spinner{
+    display:inline-block; width: 12px; height:12px; border-radius:50%;
+    border: 2px solid rgba(250,246,236,0.25); border-top-color: var(--gold-bright);
+    animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: -1px;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  footer{
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-paper);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: rgba(250,246,236,0.4);
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">9 UC campuses &nbsp;·&nbsp; 562 majors &nbsp;·&nbsp; 1 application</div>
+    <h1>Build your <em>transfer</em><br/>major plan.</h1>
+    <p class="sub">Pick the UCs you're applying to, your GPA, and a major or direction you're interested in. We match you to the strongest-fit majors at each campus, plus close alternates.</p>
+  </header>
+
+  <div class="panel">
+    <div class="field-row">
+      <div>
+        <label for="gpa" class="label-blue">Your GPA</label>
+        <input type="number" id="gpa" step="0.01" min="1" max="4" placeholder="3.62" />
+      </div>
+      <div>
+        <label for="interest" class="label-gold">Major or career direction</label>
+        <input type="text" id="interest" placeholder="e.g. biology, something with data, pre-med" />
+      </div>
+    </div>
+    <div class="campus-block">
+      <label>UCs you're applying to</label>
+      <div class="campus-grid" id="campusGrid"></div>
+    </div>
+
+    <div class="submit-row">
+      <button class="go" id="go">Build my plan<svg class="sparkle" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c.7 3.9 2 6.3 4 8s4.1 2.4 8 4c-3.9.7-6.3 2-8 4s-2.4 4.1-4 8c-.7-3.9-2-6.3-4-8s-4.1-2.4-8-4c3.9-.7 6.3-2 8-4s2.4-4.1 4-8z"/></svg></button>
+      <span class="hint" id="hint">Data: all 9 UC campuses, most recent published transfer cycle</span>
+    </div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <footer>
+    Source: UC Information Center, Transfers by Major · This is a working mockup — data refreshed manually, not live.
+  </footer>
+</div>
+
+<script>
+// Set this to your deployed backend's URL before going live.
+// Locally (backend running via `uvicorn main:app --reload`), this default works as-is.
+const API_BASE_URL = window.MAJOR_FIT_API_BASE || "http://localhost:8000";
+
+// A stable, anonymous per-browser ID (no login, no personal info) so the
+// backend can count unique visitors, not just raw search volume.
+function getClientId(){
+  try{
+    let id = localStorage.getItem('majorFitClientId');
+    if(!id){
+      id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      localStorage.setItem('majorFitClientId', id);
+    }
+    return id;
+  }catch(e){
+    // localStorage can fail (private browsing, etc.) — fall back to a
+    // per-session-only id rather than breaking the app.
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+const CLIENT_ID = getClientId();
+
+const MAJORS = [{"campus": "UC Davis", "discipline": "Architecture", "major": "Pre-Landscape Architecture", "gpaRange": "3.32 - 3.80", "admitRate": 0.626}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Art - Studio", "gpaRange": "3.31 - 3.85", "admitRate": 0.752}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.41 - 3.85", "admitRate": 0.813}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Cinema and Digital Media", "gpaRange": "3.40 - 3.85", "admitRate": 0.699}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Design", "gpaRange": "3.45 - 3.91", "admitRate": 0.718}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.42 - 3.87", "admitRate": 0.79}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.41 - 3.87", "admitRate": 0.781}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Japanese", "gpaRange": "3.39 - 3.71", "admitRate": 0.762}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Linguistics", "gpaRange": "3.41 - 3.91", "admitRate": 0.776}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.21 - 3.74", "admitRate": 0.652}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.36 - 3.88", "admitRate": 0.774}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Spanish", "gpaRange": "3.50 - 3.80", "admitRate": 0.7}, {"campus": "UC Davis", "discipline": "Arts & Humanities", "major": "Theatre and Dance", "gpaRange": "3.46 - 3.94", "admitRate": 0.556}, {"campus": "UC Davis", "discipline": "Business", "major": "Managerial Economics", "gpaRange": "3.53 - 3.90", "admitRate": 0.676}, {"campus": "UC Davis", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.85 - 4.00", "admitRate": 0.193}, {"campus": "UC Davis", "discipline": "Education", "major": "Agricultural and Environmental Education", "gpaRange": "3.19 - 3.78", "admitRate": 0.5}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Agricultural and Environmental Technology", "gpaRange": "3.44 - 3.83", "admitRate": 0.577}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Aerospace Science and Engineering", "gpaRange": "3.68 - 3.88", "admitRate": 0.259}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Biomedical Engineering", "gpaRange": "3.74 - 3.96", "admitRate": 0.265}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.73 - 3.92", "admitRate": 0.427}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Civil Engineering", "gpaRange": "3.60 - 3.89", "admitRate": 0.346}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.65 - 3.92", "admitRate": 0.294}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Computer Science & Engineering", "gpaRange": "3.86 - 4.00", "admitRate": 0.285}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Engineering", "gpaRange": "3.59 - 3.92", "admitRate": 0.535}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Environmental Engineering", "gpaRange": "3.62 - 3.86", "admitRate": 0.214}, {"campus": "UC Davis", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.61 - 3.91", "admitRate": 0.347}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Animal Biology", "gpaRange": "3.21 - 3.64", "admitRate": 0.606}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Animal Science & Management", "gpaRange": "3.45 - 3.83", "admitRate": 0.423}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Animal Sciences", "gpaRange": "3.26 - 3.77", "admitRate": 0.587}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Biotechnology", "gpaRange": "3.29 - 3.78", "admitRate": 0.609}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Entomology", "gpaRange": "3.29 - 3.70", "admitRate": 0.615}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Environ Policy Analysis & Planning", "gpaRange": "3.46 - 3.90", "admitRate": 0.632}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Environmental Science and Management", "gpaRange": "3.34 - 3.83", "admitRate": 0.689}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Environmental Toxicology", "gpaRange": "3.18 - 3.60", "admitRate": 0.625}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Food Science", "gpaRange": "3.35 - 3.87", "admitRate": 0.659}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Global Disease Biology", "gpaRange": "3.22 - 3.62", "admitRate": 0.685}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Plant Sciences", "gpaRange": "3.21 - 3.83", "admitRate": 0.639}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Sustainable Environmental Design", "gpaRange": "3.40 - 3.87", "admitRate": 0.778}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Viticulture & Enology", "gpaRange": "3.63 - 3.84", "admitRate": 0.3}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Wildlife, Fish & Conservation Biology", "gpaRange": "3.37 - 3.81", "admitRate": 0.6}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Biochemistry- Molecular Biology", "gpaRange": "3.43 - 3.88", "admitRate": 0.592}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Biological Sciences", "gpaRange": "3.42 - 3.83", "admitRate": 0.477}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Cell Biology", "gpaRange": "3.44 - 3.87", "admitRate": 0.443}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Evolution, Ecology & Biodiversity", "gpaRange": "3.37 - 3.83", "admitRate": 0.545}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Genetics and Genomics", "gpaRange": "3.44 - 3.90", "admitRate": 0.462}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Human Biology", "gpaRange": "3.45 - 3.87", "admitRate": 0.382}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Molecular & Medical Microbiology", "gpaRange": "3.48 - 3.89", "admitRate": 0.56}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Neurobiology, Physiology, & Behavior", "gpaRange": "3.48 - 3.89", "admitRate": 0.522}, {"campus": "UC Davis", "discipline": "Life Sciences", "major": "Plant Biology", "gpaRange": "3.34 - 3.73", "admitRate": 0.435}, {"campus": "UC Davis", "discipline": "Other Health Science", "major": "Pharmaceutical Chemistry", "gpaRange": "3.27 - 3.75", "admitRate": 0.875}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Clinical Nutrition", "gpaRange": "3.28 - 3.72", "admitRate": 0.632}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Marine and Coastal Science", "gpaRange": "3.33 - 3.55", "admitRate": 0.429}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Nutritional Science", "gpaRange": "3.25 - 3.85", "admitRate": 0.569}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Sustainable Agriculture and Food Systems", "gpaRange": "3.29 - 3.75", "admitRate": 0.48}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Cognitive Science", "gpaRange": "3.44 - 3.91", "admitRate": 0.787}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Communication", "gpaRange": "3.39 - 3.83", "admitRate": 0.715}, {"campus": "UC Davis", "discipline": "Other/Interdisciplinary", "major": "Data Science", "gpaRange": "3.71 - 3.96", "admitRate": 0.413}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Atmospheric Sciences", "gpaRange": "3.20 - 3.73", "admitRate": 0.636}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Applied Chemistry", "gpaRange": "3.38 - 3.65", "admitRate": 0.536}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Applied Mathematics", "gpaRange": "3.63 - 3.98", "admitRate": 0.691}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Applied Physics", "gpaRange": "3.37 - 3.86", "admitRate": 0.574}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.20 - 3.69", "admitRate": 0.741}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Geology", "gpaRange": "3.40 - 3.84", "admitRate": 0.625}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Mathematical Analytics and Operations Research", "gpaRange": "3.51 - 3.94", "admitRate": 0.654}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.54 - 4.00", "admitRate": 0.714}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Mathematics & Science Computation", "gpaRange": "3.74 - 3.94", "admitRate": 0.583}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.50 - 3.94", "admitRate": 0.583}, {"campus": "UC Davis", "discipline": "Physical Sciences/Math", "major": "Statistics", "gpaRange": "3.46 - 3.92", "admitRate": 0.847}, {"campus": "UC Davis", "discipline": "Public Admin", "major": "Community & Regional Development", "gpaRange": "3.45 - 3.81", "admitRate": 0.528}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Human Development", "gpaRange": "3.32 - 3.80", "admitRate": 0.587}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.39 - 3.84", "admitRate": 0.716}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.55 - 3.91", "admitRate": 0.669}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "International Relations", "gpaRange": "3.41 - 3.88", "admitRate": 0.736}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.48 - 3.93", "admitRate": 0.771}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Political Science - Public Service", "gpaRange": "3.37 - 3.86", "admitRate": 0.695}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.46 - 3.89", "admitRate": 0.514}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.41 - 3.86", "admitRate": 0.75}, {"campus": "UC Davis", "discipline": "Social Sciences", "major": "Sociology/Organizational Studies", "gpaRange": "3.49 - 3.85", "admitRate": 0.78}, {"campus": "UC Davis", "discipline": "Undeclared", "major": "Undeclared/Exploratory Agricultural Science", "gpaRange": "3.77 - 4.00", "admitRate": 0.133}, {"campus": "UC San Diego", "discipline": "Architecture", "major": "Real Estate and Development", "gpaRange": "3.31 - 3.90", "admitRate": 0.559}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Art History/Criticism", "gpaRange": "3.37 - 3.85", "admitRate": 0.759}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Bachelor of Arts in Cinematic Arts", "gpaRange": "3.24 - 3.85", "admitRate": 0.654}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Dance", "gpaRange": "3.22 - 3.72", "admitRate": 0.545}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Drama", "gpaRange": "3.38 - 3.85", "admitRate": 0.603}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.41 - 3.92", "admitRate": 0.766}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Literature, English/American", "gpaRange": "3.33 - 3.81", "admitRate": 0.78}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Literature/Writing", "gpaRange": "3.32 - 3.92", "admitRate": 0.713}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.20 - 3.79", "admitRate": 0.63}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.37 - 3.91", "admitRate": 0.748}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Speculative Design", "gpaRange": "3.64 - 3.93", "admitRate": 0.72}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Studio Art", "gpaRange": "3.39 - 3.88", "admitRate": 0.679}, {"campus": "UC San Diego", "discipline": "Arts & Humanities", "major": "Visual Arts - Media", "gpaRange": "3.36 - 3.85", "admitRate": 0.651}, {"campus": "UC San Diego", "discipline": "Business", "major": "Business Economics", "gpaRange": "3.63 - 3.95", "admitRate": 0.434}, {"campus": "UC San Diego", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.89 - 4.00", "admitRate": 0.171}, {"campus": "UC San Diego", "discipline": "Computer Science", "major": "Data Science", "gpaRange": "3.64 - 4.00", "admitRate": 0.574}, {"campus": "UC San Diego", "discipline": "Education", "major": "Education Sciences", "gpaRange": "3.28 - 3.83", "admitRate": 0.698}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Aerospace Engineering", "gpaRange": "3.74 - 3.92", "admitRate": 0.424}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Aerospace Engineering With A Specialization in Astrodynamics and Space App", "gpaRange": "3.59 - 3.92", "admitRate": 0.361}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Bioengineering", "gpaRange": "3.60 - 4.00", "admitRate": 0.416}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Bioengineering (Biotech)", "gpaRange": "3.69 - 3.98", "admitRate": 0.453}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Bioengineering: Biosystems", "gpaRange": "3.55 - 3.77", "admitRate": 0.593}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "BS in Structural Engineering With A Specialization in Civil Structures", "gpaRange": "3.37 - 3.86", "admitRate": 0.4}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.57 - 3.89", "admitRate": 0.445}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.81 - 4.00", "admitRate": 0.195}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Electrical Engineering - BS", "gpaRange": "3.62 - 3.98", "admitRate": 0.387}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.88 - 4.00", "admitRate": 0.202}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Mechanical Engineering With A Spec in Controls and Robotics", "gpaRange": "3.89 - 4.00", "admitRate": 0.165}, {"campus": "UC San Diego", "discipline": "Engineering", "major": "Structural Engineering", "gpaRange": "3.47 - 3.91", "admitRate": 0.411}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Bioengineering - Bioinformatics", "gpaRange": "3.70 - 3.94", "admitRate": 0.462}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Biology", "gpaRange": "3.44 - 3.87", "admitRate": 0.474}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Biology - Bioinformatics", "gpaRange": "3.46 - 3.97", "admitRate": 0.594}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Ecology, Behavior & Evolution", "gpaRange": "3.47 - 3.90", "admitRate": 0.442}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Environmental Systems - Ecology, Behavior, Evolution", "gpaRange": "3.33 - 3.83", "admitRate": 0.551}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Human Biology", "gpaRange": "3.51 - 3.90", "admitRate": 0.52}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Marine Biology", "gpaRange": "3.19 - 3.73", "admitRate": 0.408}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Microbiology", "gpaRange": "3.47 - 3.92", "admitRate": 0.492}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Molecular & Cell Biology", "gpaRange": "3.59 - 3.93", "admitRate": 0.56}, {"campus": "UC San Diego", "discipline": "Life Sciences", "major": "Neurobiology", "gpaRange": "3.52 - 3.93", "admitRate": 0.497}, {"campus": "UC San Diego", "discipline": "Other Health Science", "major": "Bachelor of Science in Public Health W/ Concentration in Community Hlth Sci", "gpaRange": "3.28 - 3.76", "admitRate": 0.576}, {"campus": "UC San Diego", "discipline": "Other Health Science", "major": "Bachelor of Science in Public Health W/ Concentration in Hlth Policy and Mgmt Sc", "gpaRange": "3.34 - 3.66", "admitRate": 0.448}, {"campus": "UC San Diego", "discipline": "Other Health Science", "major": "Bachelor of Science in Public Health W/ Concentration in Medicine Science", "gpaRange": "3.52 - 3.93", "admitRate": 0.452}, {"campus": "UC San Diego", "discipline": "Other Health Science", "major": "Global Health", "gpaRange": "3.22 - 3.80", "admitRate": 0.787}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Bachelor of Arts in Media Industries and Communication", "gpaRange": "3.40 - 3.85", "admitRate": 0.669}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Cognitive and Behavioral Neuroscience", "gpaRange": "3.36 - 3.87", "admitRate": 0.69}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Cognitive Science", "gpaRange": "3.51 - 3.91", "admitRate": 0.756}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Communication Arts", "gpaRange": "3.42 - 3.87", "admitRate": 0.702}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Interdisciplinary Computer & The Arts", "gpaRange": "3.41 - 3.96", "admitRate": 0.609}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "International Studies - Economics", "gpaRange": "3.49 - 3.88", "admitRate": 0.64}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "International Studies - International Business", "gpaRange": "3.37 - 3.81", "admitRate": 0.617}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "International Studies - Political Science", "gpaRange": "3.46 - 3.92", "admitRate": 0.676}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "International Studies - Sociology", "gpaRange": "3.52 - 4.00", "admitRate": 0.621}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Linguistics", "gpaRange": "3.60 - 3.99", "admitRate": 0.684}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Linguistics (Cognition & Language)", "gpaRange": "3.26 - 3.82", "admitRate": 0.75}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Linguistics (Specialization in Speech and Language Sciences)", "gpaRange": "3.36 - 3.88", "admitRate": 0.784}, {"campus": "UC San Diego", "discipline": "Other/Interdisciplinary", "major": "Mathematics - Computer Science", "gpaRange": "3.61 - 3.95", "admitRate": 0.655}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Applied Mathematics", "gpaRange": "3.67 - 3.97", "admitRate": 0.665}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Astronomy and Astrophysics", "gpaRange": "3.45 - 3.89", "admitRate": 0.462}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.27 - 3.87", "admitRate": 0.45}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Chemistry - Biochemistry", "gpaRange": "3.54 - 3.94", "admitRate": 0.481}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.51 - 3.96", "admitRate": 0.632}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Mathematics - Applied Science", "gpaRange": "3.57 - 3.91", "admitRate": 0.708}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Mathematics/Economics", "gpaRange": "3.67 - 4.00", "admitRate": 0.54}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Pharmacological Chemistry", "gpaRange": "3.53 - 3.96", "admitRate": 0.448}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.46 - 3.91", "admitRate": 0.542}, {"campus": "UC San Diego", "discipline": "Physical Sciences/Math", "major": "Probability and Statistics", "gpaRange": "3.72 - 4.00", "admitRate": 0.58}, {"campus": "UC San Diego", "discipline": "Public Health", "major": "Public Health", "gpaRange": "3.40 - 3.82", "admitRate": 0.591}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.37 - 3.89", "admitRate": 0.725}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Anthropology With Concentration in Climate Change and Human Solutions", "gpaRange": "3.32 - 3.76", "admitRate": 0.826}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Anthropology(Concentration in Sociocultral Anthropology)", "gpaRange": "3.38 - 3.84", "admitRate": 0.704}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Bachelor of Science in Economics", "gpaRange": "3.48 - 3.94", "admitRate": 0.413}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Business Psychology", "gpaRange": "3.44 - 3.86", "admitRate": 0.515}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.62 - 3.95", "admitRate": 0.567}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Human Developmental Sciences", "gpaRange": "3.21 - 3.75", "admitRate": 0.692}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Japanese Studies", "gpaRange": "3.39 - 3.87", "admitRate": 0.759}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.47 - 3.93", "admitRate": 0.762}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science - American Politics", "gpaRange": "3.36 - 3.98", "admitRate": 0.634}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science - International Relations", "gpaRange": "3.43 - 3.91", "admitRate": 0.719}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science - Public Law", "gpaRange": "3.37 - 3.90", "admitRate": 0.675}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science - Public Policy", "gpaRange": "3.43 - 3.90", "admitRate": 0.787}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science /Race, Ethnicity and Politics", "gpaRange": "3.39 - 3.85", "admitRate": 0.55}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Political Science/Data Analytics", "gpaRange": "3.30 - 3.92", "admitRate": 0.745}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.44 - 3.90", "admitRate": 0.664}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology With A Specialization in Clinical Psychology", "gpaRange": "3.38 - 3.87", "admitRate": 0.712}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology With A Specialization in Cognitive Psychology", "gpaRange": "3.48 - 3.90", "admitRate": 0.657}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology With A Specialization in Developmental Psychology", "gpaRange": "3.27 - 3.80", "admitRate": 0.582}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology With A Specialization in Human Health", "gpaRange": "3.50 - 3.83", "admitRate": 0.63}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Psychology With A Specialization in Social Psychology", "gpaRange": "3.58 - 3.95", "admitRate": 0.682}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.40 - 3.90", "admitRate": 0.731}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - Culture and Communications", "gpaRange": "3.19 - 3.66", "admitRate": 0.656}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - Economy and Society", "gpaRange": "3.66 - 3.89", "admitRate": 0.667}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - International Studies", "gpaRange": "3.26 - 3.84", "admitRate": 0.632}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - Law and Society", "gpaRange": "3.38 - 3.85", "admitRate": 0.583}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - Science and Medicine", "gpaRange": "3.43 - 3.85", "admitRate": 0.732}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Sociology - Social Inequality", "gpaRange": "3.63 - 3.90", "admitRate": 0.694}, {"campus": "UC San Diego", "discipline": "Social Sciences", "major": "Urban Studies & Planning", "gpaRange": "3.42 - 3.92", "admitRate": 0.7}, {"campus": "UC Berkeley", "discipline": "Architecture", "major": "Architecture", "gpaRange": "3.73 - 3.94", "admitRate": 0.184}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Art", "gpaRange": "3.80 - 4.00", "admitRate": 0.229}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Chinese Language & Literature", "gpaRange": "3.53 - 4.00", "admitRate": 0.513}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Comparative Literature", "gpaRange": "3.53 - 3.92", "admitRate": 0.66}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "East Asian Religion, Thought, and Culture", "gpaRange": "3.61 - 3.92", "admitRate": 0.291}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.41 - 3.90", "admitRate": 0.78}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Film", "gpaRange": "3.46 - 3.90", "admitRate": 0.595}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.73 - 4.00", "admitRate": 0.306}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "History of Art", "gpaRange": "3.36 - 3.93", "admitRate": 0.755}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Japanese Language & Literature", "gpaRange": "3.49 - 3.93", "admitRate": 0.743}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Linguistics", "gpaRange": "3.68 - 4.00", "admitRate": 0.6}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Middle Eastern Languages & Cultures", "gpaRange": "3.69 - 3.90", "admitRate": 0.462}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.50 - 3.94", "admitRate": 0.569}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.52 - 3.93", "admitRate": 0.736}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Rhetoric", "gpaRange": "3.55 - 3.93", "admitRate": 0.688}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "South & Southeast Asian Studies", "gpaRange": "3.66 - 3.83", "admitRate": 0.727}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Spanish / Portuguese", "gpaRange": "3.37 - 3.95", "admitRate": 0.667}, {"campus": "UC Berkeley", "discipline": "Arts & Humanities", "major": "Theater and Performance Studies", "gpaRange": "3.47 - 3.89", "admitRate": 0.626}, {"campus": "UC Berkeley", "discipline": "Business", "major": "Business Administration", "gpaRange": "3.87 - 4.00", "admitRate": 0.049}, {"campus": "UC Berkeley", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.98 - 4.00", "admitRate": 0.027}, {"campus": "UC Berkeley", "discipline": "Computer Science", "major": "Data Science", "gpaRange": "3.80 - 4.00", "admitRate": 0.14}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.79 - 3.98", "admitRate": 0.331}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Aerospace Engineering", "gpaRange": "3.86 - 4.00", "admitRate": 0.162}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Bioengineering", "gpaRange": "3.83 - 4.00", "admitRate": 0.216}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Civil Engineering", "gpaRange": "3.76 - 3.94", "admitRate": 0.217}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Electrical Engineering - Computer Science", "gpaRange": "3.95 - 4.00", "admitRate": 0.114}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Energy Engineering", "gpaRange": "3.63 - 3.82", "admitRate": 0.214}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Industrial Engineering & Operations Research Engineering", "gpaRange": "3.70 - 3.86", "admitRate": 0.143}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.90 - 4.00", "admitRate": 0.133}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Nuclear Engineering", "gpaRange": "3.78 - 3.99", "admitRate": 0.244}, {"campus": "UC Berkeley", "discipline": "Engineering", "major": "Analytics", "gpaRange": "3.66 - 3.94", "admitRate": 0.438}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Environmental Earth Science", "gpaRange": "3.49 - 3.79", "admitRate": 0.567}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Geography", "gpaRange": "3.61 - 3.93", "admitRate": 0.565}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Integrative Biology", "gpaRange": "3.65 - 3.95", "admitRate": 0.413}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Molecular & Cell Biology", "gpaRange": "3.69 - 3.96", "admitRate": 0.314}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Neuroscience", "gpaRange": "3.70 - 3.98", "admitRate": 0.313}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Conservation & Resource Studies", "gpaRange": "3.53 - 3.86", "admitRate": 0.49}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Ecosystem Management and Forestry - Forestry", "gpaRange": "3.36 - 3.82", "admitRate": 0.476}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Environmental Economics & Policy", "gpaRange": "3.72 - 4.00", "admitRate": 0.302}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Environmental Science", "gpaRange": "3.35 - 3.92", "admitRate": 0.119}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Genetics & Plant Biology", "gpaRange": "3.38 - 3.89", "admitRate": 0.24}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Microbial Biology", "gpaRange": "3.51 - 3.96", "admitRate": 0.444}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Molecular Environmental Biology", "gpaRange": "3.60 - 3.91", "admitRate": 0.371}, {"campus": "UC Berkeley", "discipline": "Life Sciences", "major": "Society and Environment", "gpaRange": "3.47 - 3.90", "admitRate": 0.352}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Cognitive Science", "gpaRange": "3.74 - 3.96", "admitRate": 0.179}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Global Studies", "gpaRange": "3.60 - 3.93", "admitRate": 0.589}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Interdisciplinary Studies", "gpaRange": "3.66 - 3.96", "admitRate": 0.28}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Legal Studies", "gpaRange": "3.76 - 4.00", "admitRate": 0.138}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Media Studies", "gpaRange": "3.64 - 3.98", "admitRate": 0.236}, {"campus": "UC Berkeley", "discipline": "Other/Interdisciplinary", "major": "Nutritional Science", "gpaRange": "3.47 - 3.85", "admitRate": 0.078}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Chemical Biology", "gpaRange": "3.78 - 3.96", "admitRate": 0.283}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.78 - 4.00", "admitRate": 0.252}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Statistics", "gpaRange": "3.79 - 4.00", "admitRate": 0.307}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Materials Science & Engineering", "gpaRange": "3.66 - 3.85", "admitRate": 0.143}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Applied Mathematics", "gpaRange": "3.81 - 4.00", "admitRate": 0.377}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Astrophysics", "gpaRange": "3.47 - 3.91", "admitRate": 0.586}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.86 - 3.98", "admitRate": 0.467}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Geology", "gpaRange": "3.43 - 3.82", "admitRate": 0.417}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Marine Science", "gpaRange": "3.25 - 3.79", "admitRate": 0.577}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.72 - 4.00", "admitRate": 0.261}, {"campus": "UC Berkeley", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.62 - 3.98", "admitRate": 0.363}, {"campus": "UC Berkeley", "discipline": "Public Admin", "major": "Social Welfare", "gpaRange": "3.50 - 3.92", "admitRate": 0.271}, {"campus": "UC Berkeley", "discipline": "Public Health", "major": "Public Health", "gpaRange": "3.65 - 3.92", "admitRate": 0.094}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Urban Studies", "gpaRange": "3.42 - 3.88", "admitRate": 0.328}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "American Studies", "gpaRange": "3.19 - 3.87", "admitRate": 0.821}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.68 - 3.94", "admitRate": 0.387}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Asian American and Asian Diaspora Studies", "gpaRange": "3.72 - 3.93", "admitRate": 0.636}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Chicano Studies", "gpaRange": "3.30 - 3.78", "admitRate": 0.778}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.84 - 4.00", "admitRate": 0.151}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Ethnic Studies", "gpaRange": "3.51 - 3.93", "admitRate": 0.552}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Gender & Women's Studies", "gpaRange": "3.81 - 3.94", "admitRate": 0.611}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Political Economy", "gpaRange": "3.75 - 4.00", "admitRate": 0.123}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.79 - 4.00", "admitRate": 0.126}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.78 - 4.00", "admitRate": 0.089}, {"campus": "UC Berkeley", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.81 - 4.00", "admitRate": 0.124}, {"campus": "UC Berkeley", "discipline": "Undeclared", "major": "Undeclared", "gpaRange": "3.47 - 3.93", "admitRate": 0.672}, {"campus": "UC Los Angeles", "discipline": "Architecture", "major": "Architectural Studies", "gpaRange": "3.80 - 3.92", "admitRate": 0.078}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "American Literature & Culture", "gpaRange": "3.48 - 3.76", "admitRate": 0.727}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.59 - 3.94", "admitRate": 0.632}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Asian Languages and Linguistics", "gpaRange": "3.65 - 3.94", "admitRate": 0.476}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Chinese", "gpaRange": "3.75 - 3.93", "admitRate": 0.4}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Comparative Literature", "gpaRange": "3.61 - 3.93", "admitRate": 0.538}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.63 - 3.95", "admitRate": 0.561}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "European Languages and Transcultural Studies With French and Francophone", "gpaRange": "3.65 - 3.94", "admitRate": 0.8}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Japanese", "gpaRange": "3.59 - 3.91", "admitRate": 0.619}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics", "gpaRange": "3.62 - 3.95", "admitRate": 0.582}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Anthropology", "gpaRange": "3.74 - 3.87", "admitRate": 0.545}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Asian Languages & Cultures", "gpaRange": "3.61 - 3.85", "admitRate": 0.571}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Computer Science", "gpaRange": "3.63 - 3.90", "admitRate": 0.404}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Philosophy", "gpaRange": "3.52 - 3.98", "admitRate": 0.4}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Psychology", "gpaRange": "3.58 - 3.90", "admitRate": 0.393}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Linguistics & Spanish", "gpaRange": "3.56 - 3.80", "admitRate": 0.833}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.60 - 3.92", "admitRate": 0.594}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Pre-History", "gpaRange": "3.68 - 4.00", "admitRate": 0.583}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Spanish", "gpaRange": "3.48 - 3.98", "admitRate": 0.579}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Study of Religion", "gpaRange": "3.40 - 3.80", "admitRate": 0.4}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Ethnomusicology", "gpaRange": "3.48 - 3.81", "admitRate": 0.333}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Music Industry", "gpaRange": "3.65 - 4.00", "admitRate": 0.294}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Art", "gpaRange": "3.44 - 3.87", "admitRate": 0.052}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Dance", "gpaRange": "3.72 - 3.94", "admitRate": 0.2}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Design Media Arts", "gpaRange": "3.54 - 3.94", "admitRate": 0.042}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "World Arts & Culture", "gpaRange": "3.58 - 3.78", "admitRate": 0.143}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Film & Television", "gpaRange": "3.72 - 3.97", "admitRate": 0.027}, {"campus": "UC Los Angeles", "discipline": "Arts & Humanities", "major": "Theater", "gpaRange": "3.86 - 4.00", "admitRate": 0.046}, {"campus": "UC Los Angeles", "discipline": "Business", "major": "Labor Studies", "gpaRange": "3.66 - 3.86", "admitRate": 0.457}, {"campus": "UC Los Angeles", "discipline": "Business", "major": "Pre-Business Economics", "gpaRange": "3.89 - 4.00", "admitRate": 0.101}, {"campus": "UC Los Angeles", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "4.00 - 4.00", "admitRate": 0.048}, {"campus": "UC Los Angeles", "discipline": "Education", "major": "Pre-Education and Social Transformation", "gpaRange": "3.58 - 3.92", "admitRate": 0.553}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Aerospace Engineering", "gpaRange": "3.88 - 4.00", "admitRate": 0.132}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Bioengineering", "gpaRange": "3.96 - 4.00", "admitRate": 0.102}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.80 - 3.97", "admitRate": 0.34}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Civil Engineering", "gpaRange": "3.75 - 3.94", "admitRate": 0.226}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.94 - 4.00", "admitRate": 0.064}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Computer Science & Engineering", "gpaRange": "3.94 - 4.00", "admitRate": 0.089}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Electrical Engineering", "gpaRange": "3.93 - 4.00", "admitRate": 0.178}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Materials Engineering", "gpaRange": "3.64 - 3.88", "admitRate": 0.395}, {"campus": "UC Los Angeles", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.92 - 4.00", "admitRate": 0.122}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Biochemistry", "gpaRange": "3.82 - 3.97", "admitRate": 0.283}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Biology", "gpaRange": "3.82 - 4.00", "admitRate": 0.174}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Biophysics", "gpaRange": "3.84 - 3.94", "admitRate": 0.316}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Ecology, Behavior & Evolution", "gpaRange": "3.66 - 3.90", "admitRate": 0.135}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Environmental Science", "gpaRange": "3.63 - 3.90", "admitRate": 0.333}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Microbiology - Immunology - Molecular Genetics", "gpaRange": "3.81 - 4.00", "admitRate": 0.291}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Molecular, Cell, & Developmental Biology", "gpaRange": "3.87 - 4.00", "admitRate": 0.302}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Neuroscience", "gpaRange": "3.81 - 3.95", "admitRate": 0.221}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Physiological Science", "gpaRange": "3.80 - 3.95", "admitRate": 0.203}, {"campus": "UC Los Angeles", "discipline": "Life Sciences", "major": "Precomputational Biology", "gpaRange": "3.82 - 3.99", "admitRate": 0.552}, {"campus": "UC Los Angeles", "discipline": "Nursing", "major": "Nursing - Four Year Program", "gpaRange": "3.70 - 3.95", "admitRate": 0.066}, {"campus": "UC Los Angeles", "discipline": "Other Health Science", "major": "Pre-Public Health", "gpaRange": "3.90 - 4.00", "admitRate": 0.124}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Applied Linguistics", "gpaRange": "3.54 - 3.91", "admitRate": 0.537}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Classical Civilization", "gpaRange": "3.69 - 3.88", "admitRate": 0.333}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Communication", "gpaRange": "3.92 - 4.00", "admitRate": 0.126}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Geography/Environmental Studies", "gpaRange": "3.61 - 3.92", "admitRate": 0.543}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Pre Human Biology and Society", "gpaRange": "3.87 - 4.00", "admitRate": 0.192}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Pre-Cognitive Science", "gpaRange": "3.82 - 3.95", "admitRate": 0.258}, {"campus": "UC Los Angeles", "discipline": "Other/Interdisciplinary", "major": "Pre-Global Studies", "gpaRange": "3.66 - 3.93", "admitRate": 0.414}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Astrophysics", "gpaRange": "3.77 - 3.95", "admitRate": 0.343}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.80 - 4.00", "admitRate": 0.264}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Earth and Environmental Science", "gpaRange": "3.55 - 3.73", "admitRate": 0.2}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Geology", "gpaRange": "3.64 - 3.86", "admitRate": 0.333}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.84 - 4.00", "admitRate": 0.312}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Applied Mathematics", "gpaRange": "3.89 - 4.00", "admitRate": 0.356}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Data Theory", "gpaRange": "3.79 - 3.93", "admitRate": 0.46}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Financial Actuarial Mathematics", "gpaRange": "3.88 - 4.00", "admitRate": 0.196}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Mathematics", "gpaRange": "3.89 - 4.00", "admitRate": 0.313}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Mathematics for Teaching", "gpaRange": "3.88 - 4.00", "admitRate": 0.257}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Mathematics of Computation", "gpaRange": "3.87 - 4.00", "admitRate": 0.484}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Mathematics/Applied Science", "gpaRange": "3.97 - 4.00", "admitRate": 0.25}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Mathematics/Economics", "gpaRange": "3.91 - 4.00", "admitRate": 0.349}, {"campus": "UC Los Angeles", "discipline": "Physical Sciences/Math", "major": "Pre-Statistics and Data Science", "gpaRange": "3.94 - 4.00", "admitRate": 0.231}, {"campus": "UC Los Angeles", "discipline": "Public Admin", "major": "Pre-Public Affairs", "gpaRange": "3.56 - 3.86", "admitRate": 0.458}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "African American Studies", "gpaRange": "3.17 - 3.42", "admitRate": 0.381}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "American Indian Studies", "gpaRange": "3.37 - 3.54", "admitRate": 0.333}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.55 - 3.92", "admitRate": 0.604}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Asian American Studies", "gpaRange": "3.52 - 3.94", "admitRate": 0.433}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Asian Humanities", "gpaRange": "3.73 - 3.92", "admitRate": 0.52}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Asian Studies", "gpaRange": "3.54 - 3.96", "admitRate": 0.435}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Chicana & Chicano Studies", "gpaRange": "3.45 - 3.76", "admitRate": 0.414}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Gender Studies", "gpaRange": "3.62 - 3.92", "admitRate": 0.63}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Geography", "gpaRange": "3.66 - 3.92", "admitRate": 0.617}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre International Development Studies", "gpaRange": "3.80 - 3.98", "admitRate": 0.32}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre-Economics", "gpaRange": "3.91 - 4.00", "admitRate": 0.162}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre-Political Science", "gpaRange": "3.83 - 4.00", "admitRate": 0.338}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre-Psychobiology", "gpaRange": "3.84 - 3.97", "admitRate": 0.169}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre-Psychology", "gpaRange": "3.79 - 4.00", "admitRate": 0.213}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Pre-Sociology", "gpaRange": "3.74 - 3.98", "admitRate": 0.406}, {"campus": "UC Los Angeles", "discipline": "Social Sciences", "major": "Spanish and Community and Culture", "gpaRange": "3.53 - 4.00", "admitRate": 0.444}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.40 - 3.92", "admitRate": 0.775}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Classics", "gpaRange": "3.57 - 3.86", "admitRate": 0.667}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Comparative Literature", "gpaRange": "3.52 - 3.84", "admitRate": 0.719}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.42 - 3.90", "admitRate": 0.744}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Film and Media Studies", "gpaRange": "3.48 - 3.88", "admitRate": 0.663}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.49 - 3.93", "admitRate": 0.774}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Japanese Language & Literature", "gpaRange": "3.55 - 3.88", "admitRate": 0.767}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.50 - 3.92", "admitRate": 0.714}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Spanish", "gpaRange": "3.48 - 3.91", "admitRate": 0.568}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Art", "gpaRange": "3.38 - 3.89", "admitRate": 0.219}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Dance", "gpaRange": "3.45 - 3.88", "admitRate": 0.154}, {"campus": "UC Irvine", "discipline": "Arts & Humanities", "major": "Drama", "gpaRange": "3.52 - 3.89", "admitRate": 0.295}, {"campus": "UC Irvine", "discipline": "Business", "major": "Business Administration", "gpaRange": "3.80 - 4.00", "admitRate": 0.154}, {"campus": "UC Irvine", "discipline": "Business", "major": "Business Information Management", "gpaRange": "3.81 - 3.91", "admitRate": 0.056}, {"campus": "UC Irvine", "discipline": "Business", "major": "Business Economics", "gpaRange": "3.72 - 3.95", "admitRate": 0.446}, {"campus": "UC Irvine", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.87 - 4.00", "admitRate": 0.235}, {"campus": "UC Irvine", "discipline": "Computer Science", "major": "Game Design and Interactive Media", "gpaRange": "3.83 - 3.98", "admitRate": 0.148}, {"campus": "UC Irvine", "discipline": "Computer Science", "major": "Informatics", "gpaRange": "3.62 - 3.92", "admitRate": 0.325}, {"campus": "UC Irvine", "discipline": "Education", "major": "Education Sciences", "gpaRange": "3.43 - 3.83", "admitRate": 0.694}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Aerospace Engineering", "gpaRange": "3.66 - 3.93", "admitRate": 0.325}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Biomedical Engineering", "gpaRange": "3.62 - 3.98", "admitRate": 0.363}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Biomedical Engineering: Premed", "gpaRange": "3.70 - 4.00", "admitRate": 0.4}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.55 - 3.89", "admitRate": 0.568}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.63 - 3.93", "admitRate": 0.413}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Engineering - Civil", "gpaRange": "3.55 - 3.87", "admitRate": 0.373}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Engineering - Electrical", "gpaRange": "3.66 - 3.93", "admitRate": 0.373}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Engineering - Mechanical", "gpaRange": "3.59 - 3.92", "admitRate": 0.317}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Materials Science & Engineering", "gpaRange": "3.64 - 3.87", "admitRate": 0.371}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Software Engineering", "gpaRange": "3.76 - 3.94", "admitRate": 0.222}, {"campus": "UC Irvine", "discipline": "Engineering", "major": "Computer Science & Engineering", "gpaRange": "3.86 - 4.00", "admitRate": 0.19}, {"campus": "UC Irvine", "discipline": "Life Sciences", "major": "Biological Sciences", "gpaRange": "3.60 - 3.91", "admitRate": 0.373}, {"campus": "UC Irvine", "discipline": "Life Sciences", "major": "Environmental Science and Policy", "gpaRange": "3.36 - 3.89", "admitRate": 0.557}, {"campus": "UC Irvine", "discipline": "Nursing", "major": "Nursing Science", "gpaRange": "3.86 - 3.96", "admitRate": 0.022}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "Global Cultures", "gpaRange": "3.45 - 3.92", "admitRate": 0.643}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "Literary Journalism", "gpaRange": "3.39 - 3.89", "admitRate": 0.648}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "Data Science", "gpaRange": "3.82 - 4.00", "admitRate": 0.228}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "Social Ecology", "gpaRange": "3.32 - 3.70", "admitRate": 0.551}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "Cognitive Sciences", "gpaRange": "3.67 - 3.92", "admitRate": 0.216}, {"campus": "UC Irvine", "discipline": "Other/Interdisciplinary", "major": "International Studies", "gpaRange": "3.47 - 3.89", "admitRate": 0.795}, {"campus": "UC Irvine", "discipline": "Pharmacy", "major": "Pharmaceutical Science", "gpaRange": "3.70 - 3.90", "admitRate": 0.153}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Applied and Computational Mathematics", "gpaRange": "3.68 - 3.97", "admitRate": 0.718}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Applied Physics", "gpaRange": "3.45 - 3.85", "admitRate": 0.518}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.51 - 3.88", "admitRate": 0.538}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Earth System Science", "gpaRange": "3.53 - 3.90", "admitRate": 0.471}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.64 - 3.96", "admitRate": 0.689}, {"campus": "UC Irvine", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.56 - 3.93", "admitRate": 0.526}, {"campus": "UC Irvine", "discipline": "Public Health", "major": "Public Health Policy", "gpaRange": "3.37 - 3.83", "admitRate": 0.72}, {"campus": "UC Irvine", "discipline": "Public Health", "major": "Public Health Sciences", "gpaRange": "3.53 - 3.91", "admitRate": 0.409}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Chinese Studies", "gpaRange": "3.53 - 3.90", "admitRate": 0.6}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Gender and Sexuality Studies", "gpaRange": "3.58 - 3.93", "admitRate": 0.667}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Criminolgy, Law & Society", "gpaRange": "3.54 - 3.89", "admitRate": 0.513}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.64 - 4.00", "admitRate": 0.519}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Urban Studies", "gpaRange": "3.48 - 3.88", "admitRate": 0.706}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.40 - 3.86", "admitRate": 0.734}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.80 - 4.00", "admitRate": 0.33}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Language Science", "gpaRange": "3.49 - 3.94", "admitRate": 0.761}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.63 - 3.94", "admitRate": 0.63}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.54 - 3.85", "admitRate": 0.094}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Quantitative Economics", "gpaRange": "3.78 - 3.99", "admitRate": 0.378}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Social Policy and Public Service", "gpaRange": "3.37 - 3.75", "admitRate": 0.79}, {"campus": "UC Irvine", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.54 - 3.90", "admitRate": 0.65}, {"campus": "UC Merced", "discipline": "Arts & Humanities", "major": "Global Arts Studies", "gpaRange": "3.30 - 3.84", "admitRate": 0.83}, {"campus": "UC Merced", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.17 - 3.75", "admitRate": 0.835}, {"campus": "UC Merced", "discipline": "Business", "major": "Management and Business Economics", "gpaRange": "3.16 - 3.77", "admitRate": 0.61}, {"campus": "UC Merced", "discipline": "Engineering", "major": "Bioengineering", "gpaRange": "3.12 - 3.59", "admitRate": 0.408}, {"campus": "UC Merced", "discipline": "Engineering", "major": "Civil Engineering", "gpaRange": "3.15 - 3.59", "admitRate": 0.557}, {"campus": "UC Merced", "discipline": "Engineering", "major": "Computer Science & Engineering", "gpaRange": "3.33 - 3.81", "admitRate": 0.501}, {"campus": "UC Merced", "discipline": "Engineering", "major": "Electrical Engineering - BS", "gpaRange": "3.18 - 3.73", "admitRate": 0.62}, {"campus": "UC Merced", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.12 - 3.60", "admitRate": 0.63}, {"campus": "UC Merced", "discipline": "Life Sciences", "major": "Biochemistry", "gpaRange": "3.04 - 3.50", "admitRate": 0.441}, {"campus": "UC Merced", "discipline": "Life Sciences", "major": "Biological Sciences", "gpaRange": "3.12 - 3.61", "admitRate": 0.627}, {"campus": "UC Merced", "discipline": "Other/Interdisciplinary", "major": "Cognitive Science", "gpaRange": "3.23 - 3.60", "admitRate": 0.717}, {"campus": "UC Merced", "discipline": "Physical Sciences/Math", "major": "Applied Mathematics", "gpaRange": "3.34 - 3.85", "admitRate": 0.522}, {"campus": "UC Merced", "discipline": "Physical Sciences/Math", "major": "Chemical Sciences", "gpaRange": "3.08 - 3.74", "admitRate": 0.373}, {"campus": "UC Merced", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.09 - 3.66", "admitRate": 0.7}, {"campus": "UC Merced", "discipline": "Public Health", "major": "Public Health", "gpaRange": "3.16 - 3.59", "admitRate": 0.67}, {"campus": "UC Merced", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.23 - 3.79", "admitRate": 0.933}, {"campus": "UC Merced", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.27 - 3.79", "admitRate": 0.706}, {"campus": "UC Merced", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.25 - 3.82", "admitRate": 0.907}, {"campus": "UC Merced", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.23 - 3.79", "admitRate": 0.891}, {"campus": "UC Merced", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.20 - 3.78", "admitRate": 0.807}, {"campus": "UC Merced", "discipline": "Undeclared", "major": "Undeclared", "gpaRange": "3.09 - 3.75", "admitRate": 0.804}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Art", "gpaRange": "3.18 - 3.60", "admitRate": 0.168}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.03 - 3.77", "admitRate": 0.931}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Creative Writing", "gpaRange": "3.20 - 3.85", "admitRate": 0.877}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Dance", "gpaRange": "3.23 - 3.76", "admitRate": 0.765}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.13 - 3.79", "admitRate": 0.881}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.11 - 3.77", "admitRate": 0.881}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Liberal Studies", "gpaRange": "3.11 - 3.64", "admitRate": 0.707}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Linguistics", "gpaRange": "3.33 - 3.83", "admitRate": 0.866}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Media and Cultural Studies", "gpaRange": "3.09 - 3.72", "admitRate": 0.841}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.13 - 3.77", "admitRate": 0.845}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.11 - 3.75", "admitRate": 0.873}, {"campus": "UC Riverside", "discipline": "Arts & Humanities", "major": "Theatre, Film and Digital Production", "gpaRange": "3.13 - 3.79", "admitRate": 0.815}, {"campus": "UC Riverside", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.73 - 4.00", "admitRate": 0.374}, {"campus": "UC Riverside", "discipline": "Computer Science", "major": "Computer Science With Business Applications", "gpaRange": "3.51 - 3.82", "admitRate": 0.262}, {"campus": "UC Riverside", "discipline": "Computer Science", "major": "Data Science", "gpaRange": "3.43 - 3.88", "admitRate": 0.557}, {"campus": "UC Riverside", "discipline": "Education", "major": "Education, Society, and Human Development", "gpaRange": "3.01 - 3.73", "admitRate": 0.825}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Bioengineering", "gpaRange": "3.29 - 3.83", "admitRate": 0.465}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.17 - 3.77", "admitRate": 0.562}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.59 - 3.91", "admitRate": 0.39}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Electrical Engineering", "gpaRange": "3.23 - 3.89", "admitRate": 0.387}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Environmental Engineering", "gpaRange": "3.47 - 3.83", "admitRate": 0.377}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Materials Science & Engineering", "gpaRange": "3.24 - 3.61", "admitRate": 0.636}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Mechanical Engineering", "gpaRange": "3.32 - 3.82", "admitRate": 0.375}, {"campus": "UC Riverside", "discipline": "Engineering", "major": "Robotics", "gpaRange": "3.00 - 3.65", "admitRate": 0.405}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Neuroscience", "gpaRange": "3.02 - 3.61", "admitRate": 0.447}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Biochemistry", "gpaRange": "3.27 - 3.84", "admitRate": 0.59}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Biology", "gpaRange": "3.20 - 3.74", "admitRate": 0.614}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Cell, Molecular, & Developmental Biology", "gpaRange": "3.26 - 3.78", "admitRate": 0.599}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Entomology", "gpaRange": "3.02 - 3.71", "admitRate": 0.562}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Environmental Science", "gpaRange": "3.13 - 3.68", "admitRate": 0.5}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Microbiology", "gpaRange": "3.18 - 3.82", "admitRate": 0.731}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Neuroscience", "gpaRange": "3.02 - 3.70", "admitRate": 0.614}, {"campus": "UC Riverside", "discipline": "Life Sciences", "major": "Plant Biology", "gpaRange": "3.12 - 3.56", "admitRate": 0.344}, {"campus": "UC Riverside", "discipline": "Other/Interdisciplinary", "major": "Global Studies", "gpaRange": "3.10 - 3.80", "admitRate": 0.838}, {"campus": "UC Riverside", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.17 - 3.71", "admitRate": 0.596}, {"campus": "UC Riverside", "discipline": "Physical Sciences/Math", "major": "Geology", "gpaRange": "2.91 - 3.75", "admitRate": 0.727}, {"campus": "UC Riverside", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.23 - 3.82", "admitRate": 0.784}, {"campus": "UC Riverside", "discipline": "Physical Sciences/Math", "major": "Mathematics for Secondary School", "gpaRange": "3.12 - 3.70", "admitRate": 0.724}, {"campus": "UC Riverside", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.08 - 3.78", "admitRate": 0.674}, {"campus": "UC Riverside", "discipline": "Public Admin", "major": "Global and Community Health", "gpaRange": "3.34 - 3.83", "admitRate": 0.894}, {"campus": "UC Riverside", "discipline": "Public Admin", "major": "Public Service - Political Science", "gpaRange": "3.04 - 3.62", "admitRate": 0.875}, {"campus": "UC Riverside", "discipline": "Public Admin", "major": "Public Policy", "gpaRange": "3.15 - 3.63", "admitRate": 0.82}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.16 - 3.79", "admitRate": 0.847}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Business Economics", "gpaRange": "3.32 - 3.82", "admitRate": 0.826}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Chicano Studies", "gpaRange": "2.80 - 3.42", "admitRate": 0.958}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.27 - 3.85", "admitRate": 0.867}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Economics/Administrative Studies", "gpaRange": "3.29 - 3.83", "admitRate": 0.84}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.18 - 3.82", "admitRate": 0.928}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Political Science / International Studies", "gpaRange": "2.99 - 3.80", "admitRate": 0.919}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Political Science/Administration Studies", "gpaRange": "3.20 - 3.72", "admitRate": 0.865}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Psychology", "gpaRange": "3.22 - 3.78", "admitRate": 0.498}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.09 - 3.72", "admitRate": 0.873}, {"campus": "UC Riverside", "discipline": "Social Sciences", "major": "Sociology/Administration Studies", "gpaRange": "3.04 - 3.81", "admitRate": 0.87}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Art - Studio", "gpaRange": "3.45 - 3.92", "admitRate": 0.749}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.35 - 3.89", "admitRate": 0.687}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Comparative Studies - Language, Society, & Culture", "gpaRange": "3.32 - 3.93", "admitRate": 0.8}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "English", "gpaRange": "3.41 - 3.90", "admitRate": 0.775}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Film Studies", "gpaRange": "3.43 - 3.87", "admitRate": 0.67}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.47 - 3.95", "admitRate": 0.77}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "History of Public Policy and Law", "gpaRange": "3.29 - 3.60", "admitRate": 0.614}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.48 - 3.81", "admitRate": 0.479}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.44 - 3.92", "admitRate": 0.744}, {"campus": "UC Santa Barbara", "discipline": "Arts & Humanities", "major": "Theater", "gpaRange": "3.53 - 3.93", "admitRate": 0.579}, {"campus": "UC Santa Barbara", "discipline": "Business", "major": "Actuarial Science", "gpaRange": "3.48 - 3.93", "admitRate": 0.671}, {"campus": "UC Santa Barbara", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.91 - 4.00", "admitRate": 0.165}, {"campus": "UC Santa Barbara", "discipline": "Engineering", "major": "Chemical Engineering", "gpaRange": "3.82 - 4.00", "admitRate": 0.196}, {"campus": "UC Santa Barbara", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.73 - 3.90", "admitRate": 0.274}, {"campus": "UC Santa Barbara", "discipline": "Engineering", "major": "Electrical Engineering", "gpaRange": "3.87 - 4.00", "admitRate": 0.245}, {"campus": "UC Santa Barbara", "discipline": "Life Sciences", "major": "Biological Sciences", "gpaRange": "3.46 - 3.87", "admitRate": 0.327}, {"campus": "UC Santa Barbara", "discipline": "Life Sciences", "major": "Environmental Studies", "gpaRange": "3.39 - 3.81", "admitRate": 0.658}, {"campus": "UC Santa Barbara", "discipline": "Other/Interdisciplinary", "major": "Communication Studies", "gpaRange": "3.42 - 3.86", "admitRate": 0.688}, {"campus": "UC Santa Barbara", "discipline": "Other/Interdisciplinary", "major": "Global Studies", "gpaRange": "3.41 - 3.90", "admitRate": 0.723}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Applied Mathematics", "gpaRange": "3.59 - 4.00", "admitRate": 0.83}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.47 - 3.93", "admitRate": 0.459}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Earth Science", "gpaRange": "3.34 - 3.82", "admitRate": 0.621}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Financial Mathematics & Statistics", "gpaRange": "3.61 - 3.92", "admitRate": 0.784}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.47 - 3.92", "admitRate": 0.759}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.64 - 3.98", "admitRate": 0.539}, {"campus": "UC Santa Barbara", "discipline": "Physical Sciences/Math", "major": "Statistics and Data Science", "gpaRange": "3.54 - 3.94", "admitRate": 0.87}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.40 - 3.88", "admitRate": 0.694}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Biopsychology", "gpaRange": "3.45 - 3.84", "admitRate": 0.781}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.52 - 3.91", "admitRate": 0.64}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Economics and Accounting", "gpaRange": "3.53 - 3.92", "admitRate": 0.655}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Geography", "gpaRange": "3.46 - 3.91", "admitRate": 0.778}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Linguistics", "gpaRange": "3.39 - 3.87", "admitRate": 0.699}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Political Science", "gpaRange": "3.47 - 3.92", "admitRate": 0.715}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Psychological and Brain Science", "gpaRange": "3.41 - 3.88", "admitRate": 0.664}, {"campus": "UC Santa Barbara", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.41 - 3.89", "admitRate": 0.731}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Applied Linguistics and Multilingualism", "gpaRange": "3.12 - 3.91", "admitRate": 0.828}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Art", "gpaRange": "3.20 - 3.84", "admitRate": 0.775}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Art History", "gpaRange": "3.12 - 3.87", "admitRate": 0.857}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Film and Digital Media", "gpaRange": "3.16 - 3.80", "admitRate": 0.822}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "History", "gpaRange": "3.12 - 3.77", "admitRate": 0.84}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Literature", "gpaRange": "3.17 - 3.82", "admitRate": 0.885}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Music", "gpaRange": "3.20 - 3.82", "admitRate": 0.768}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Philosophy", "gpaRange": "3.19 - 3.82", "admitRate": 0.858}, {"campus": "UC Santa Cruz", "discipline": "Arts & Humanities", "major": "Theater Arts", "gpaRange": "3.25 - 3.87", "admitRate": 0.656}, {"campus": "UC Santa Cruz", "discipline": "Business", "major": "Business Management - Economics", "gpaRange": "3.25 - 3.79", "admitRate": 0.653}, {"campus": "UC Santa Cruz", "discipline": "Computer Science", "major": "Computer Science", "gpaRange": "3.50 - 3.91", "admitRate": 0.512}, {"campus": "UC Santa Cruz", "discipline": "Computer Science", "major": "Computer Science: Computer Game Design", "gpaRange": "3.27 - 3.84", "admitRate": 0.607}, {"campus": "UC Santa Cruz", "discipline": "Computer Science", "major": "Technology and Information Management", "gpaRange": "3.27 - 3.70", "admitRate": 0.464}, {"campus": "UC Santa Cruz", "discipline": "Education", "major": "Education, Democracy, and Justice", "gpaRange": "3.28 - 3.81", "admitRate": 0.776}, {"campus": "UC Santa Cruz", "discipline": "Engineering", "major": "Computer Engineering", "gpaRange": "3.27 - 3.83", "admitRate": 0.751}, {"campus": "UC Santa Cruz", "discipline": "Engineering", "major": "Electrical Engineering", "gpaRange": "3.32 - 3.84", "admitRate": 0.59}, {"campus": "UC Santa Cruz", "discipline": "Engineering", "major": "Robotics Engineering BS", "gpaRange": "3.21 - 3.76", "admitRate": 0.638}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Biochemistry- Molecular Biology", "gpaRange": "3.19 - 3.70", "admitRate": 0.605}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Biology", "gpaRange": "3.05 - 3.71", "admitRate": 0.515}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Biotechnology", "gpaRange": "3.21 - 3.73", "admitRate": 0.36}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Ecology & Evolution", "gpaRange": "3.13 - 3.69", "admitRate": 0.671}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Environmental Studies", "gpaRange": "3.20 - 3.75", "admitRate": 0.593}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Environmental Studies/Biology", "gpaRange": "3.25 - 3.55", "admitRate": 0.6}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Marine Biology", "gpaRange": "3.08 - 3.65", "admitRate": 0.609}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Microbiology", "gpaRange": "3.19 - 3.72", "admitRate": 0.644}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Molecular, Cell, & Developmental Biology", "gpaRange": "3.23 - 3.71", "admitRate": 0.678}, {"campus": "UC Santa Cruz", "discipline": "Life Sciences", "major": "Neuroscience", "gpaRange": "3.19 - 3.85", "admitRate": 0.464}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Agroecology", "gpaRange": "2.82 - 3.48", "admitRate": 0.32}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Art and Design: Games and Playable Media", "gpaRange": "3.18 - 3.80", "admitRate": 0.958}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Cognitive Science", "gpaRange": "3.37 - 3.91", "admitRate": 0.628}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Global and Community Health", "gpaRange": "3.20 - 3.78", "admitRate": 0.877}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Legal Studies", "gpaRange": "3.15 - 3.73", "admitRate": 0.898}, {"campus": "UC Santa Cruz", "discipline": "Other/Interdisciplinary", "major": "Psychology", "gpaRange": "3.08 - 3.81", "admitRate": 0.983}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Astrophysics", "gpaRange": "3.26 - 3.89", "admitRate": 0.679}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Chemistry", "gpaRange": "3.11 - 3.63", "admitRate": 0.613}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Earth Science", "gpaRange": "3.22 - 3.84", "admitRate": 0.944}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Mathematics", "gpaRange": "3.34 - 3.87", "admitRate": 0.768}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Mathematics Education", "gpaRange": "3.15 - 3.70", "admitRate": 0.85}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Mathematics Theory & Computation", "gpaRange": "3.24 - 3.86", "admitRate": 0.95}, {"campus": "UC Santa Cruz", "discipline": "Physical Sciences/Math", "major": "Physics", "gpaRange": "3.14 - 3.72", "admitRate": 0.72}, {"campus": "UC Santa Cruz", "discipline": "Public Admin", "major": "Community Studies", "gpaRange": "3.07 - 3.69", "admitRate": 0.856}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Anthropology", "gpaRange": "3.12 - 3.80", "admitRate": 0.868}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Earth Science/Anthropology", "gpaRange": "2.41 - 3.35", "admitRate": 1.0}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Economics", "gpaRange": "3.26 - 3.81", "admitRate": 0.777}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Economics - Mathematics", "gpaRange": "3.11 - 3.86", "admitRate": 0.625}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Ethnic Studies", "gpaRange": "3.14 - 3.90", "admitRate": 0.821}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Politics", "gpaRange": "3.16 - 3.84", "admitRate": 0.859}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Sociology", "gpaRange": "3.09 - 3.73", "admitRate": 0.687}, {"campus": "UC Santa Cruz", "discipline": "Social Sciences", "major": "Women's Studies", "gpaRange": "3.28 - 3.95", "admitRate": 0.85}, {"campus": "UC Santa Cruz", "discipline": "Undeclared", "major": "Undeclared", "gpaRange": "3.25 - 3.84", "admitRate": 0.764}];
+// Ordered by transfer applicant volume, most applied-to first.
+const CAMPUSES = [
+  { name: 'UC Los Angeles', available: true },
+  { name: 'UC Irvine', available: true },
+  { name: 'UC Berkeley', available: true },
+  { name: 'UC San Diego', available: true },
+  { name: 'UC Santa Barbara', available: true },
+  { name: 'UC Davis', available: true },
+  { name: 'UC Santa Cruz', available: true },
+  { name: 'UC Riverside', available: true },
+  { name: 'UC Merced', available: true },
+];
+
+const selectedCampuses = new Set(
+  CAMPUSES.filter((c, i) => c.available && i < CAMPUSES.length - 2).map(c => c.name)
+);
+
+const gpaInput = document.getElementById('gpa');
+const interestInput = document.getElementById('interest');
+const goBtn = document.getElementById('go');
+const resultsEl = document.getElementById('results');
+const campusGrid = document.getElementById('campusGrid');
+
+function renderCampusChips(){
+  campusGrid.innerHTML = CAMPUSES.map(c => {
+    const checked = selectedCampuses.has(c.name);
+    const classes = ['campus-chip'];
+    if(checked) classes.push('checked');
+    if(!c.available) classes.push('disabled');
+    return `<button type="button" class="${classes.join(' ')}" data-campus="${c.name}" ${c.available ? '' : 'disabled title="Data coming soon"'}>
+      <span class="box"></span>${c.name.replace('UC ','')}
+    </button>`;
+  }).join('');
+
+  campusGrid.querySelectorAll('.campus-chip:not(.disabled)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.dataset.campus;
+      if(selectedCampuses.has(name)) selectedCampuses.delete(name);
+      else selectedCampuses.add(name);
+      renderCampusChips();
+    });
+  });
+}
+renderCampusChips();
+
+function parseRange(str){
+  // "3.32 - 3.80" -> [3.32, 3.80]
+  const m = str.match(/([\d.]+)\s*-\s*([\d.]+)/);
+  if(!m) return null;
+  return [parseFloat(m[1]), parseFloat(m[2])];
+}
+
+function gpaBarHTML(gpaRange, userGpa){
+  const parsed = parseRange(gpaRange);
+  const lo = 2.5, hi = 4.0; // display window
+  const pct = v => Math.max(0, Math.min(100, ((v - lo) / (hi - lo)) * 100));
+  let rangeHTML = '';
+  if(parsed){
+    const left = pct(parsed[0]);
+    const width = pct(parsed[1]) - left;
+    rangeHTML = `<div class="range" style="left:${left}%; width:${width}%;"></div>`;
+  }
+  let markerHTML = '';
+  if(typeof userGpa === 'number' && !isNaN(userGpa)){
+    const left = pct(userGpa);
+    markerHTML = `<div class="marker" data-gpa="${userGpa.toFixed(2)}" style="left:calc(${left}% - 1.5px);"></div>`;
+  }
+  return `
+    <div class="gpa-bar">${rangeHTML}${markerHTML}</div>
+    <div class="bar-labels"><span>2.50</span><span>3.25</span><span>4.00</span></div>
+  `;
+}
+
+function fitTag(fit){
+  const map = { safety: ['fit-safety','Safety'], match: ['fit-match','Target'], reach: ['fit-reach','Reach'] };
+  const [cls, label] = map[fit] || ['fit-match', fit || ''];
+  return `<span class="fit-tag ${cls}">${label}</span>`;
+}
+
+function renderCard(item, userGpa, isAlt){
+  const admitPct = typeof item.admitRate === 'number' ? Math.round(item.admitRate * 100) + '%' : '';
+  return `
+    <div class="card ${isAlt ? 'alt-card' : 'pick-card'}">
+      <div class="top-row">
+        <div>
+          <div class="campus">${item.campus}${item.discipline ? ' · ' + item.discipline : ''}</div>
+          <div class="major">${item.major}</div>
+        </div>
+        ${item.fit ? fitTag(item.fit) : ''}
+      </div>
+      ${gpaBarHTML(item.gpaRange, userGpa)}
+      <div class="stats-row">
+        <span>Admit GPA range <strong>${item.gpaRange}</strong></span>
+        ${admitPct ? `<span>Admit rate <strong class="admit-rate">${admitPct}</strong></span>` : ''}
+      </div>
+      ${item.reasoning ? `<div class="reasoning">${item.reasoning}</div>` : ''}
+    </div>
+  `;
+}
+
+const FIT_RANK = { safety: 0, match: 1, reach: 2 };
+
+function sortByFit(items){
+  return items.slice().sort((a, b) => (FIT_RANK[a.fit] ?? 1) - (FIT_RANK[b.fit] ?? 1));
+}
+
+function fitForGpa(gpaRangeStr, userGpa){
+  const parsed = parseRange(gpaRangeStr);
+  if(!parsed || isNaN(userGpa)) return 'match';
+  const [lo, hi] = parsed;
+  if(userGpa >= hi) return 'safety';
+  if(userGpa >= lo) return 'match';
+  return 'reach';
+}
+
+// A major with a low admit rate stays competitive no matter how high your
+// GPA is — a 4.0 with a 15% admit rate is a Target, not a Safety. This
+// caps how good the fit can be based on admit rate, independent of GPA.
+function admitRateCap(admitRate){
+  if(typeof admitRate !== 'number') return null;
+  if(admitRate < 0.25) return 'match';
+  return null;
+}
+
+function combinedFit(gpaRangeStr, userGpa, admitRate){
+  const gpaFit = fitForGpa(gpaRangeStr, userGpa);
+  const cap = admitRateCap(admitRate);
+  if(!cap) return gpaFit;
+  return FIT_RANK[gpaFit] >= FIT_RANK[cap] ? gpaFit : cap;
+}
+
+// Short plain-language comparison of the student's GPA to the admit range,
+// replacing the old AI-written reasoning — computed locally, for free.
+function describeFit(gpaRangeStr, userGpa, admitRate){
+  const parsed = parseRange(gpaRangeStr);
+  if(!parsed || isNaN(userGpa)) return '';
+  const [lo, hi] = parsed;
+  const mid = (lo + hi) / 2;
+  let gpaLine;
+
+  if(userGpa < lo){
+    gpaLine = (lo - userGpa) >= 0.3 ? 'GPA is far below the typical range' : 'GPA is just below the typical range';
+  }else if(userGpa > hi){
+    gpaLine = (userGpa - hi) >= 0.15 ? 'GPA is well above the typical range' : 'GPA is just above the typical range';
+  }else{
+    gpaLine = userGpa >= mid ? 'GPA is comfortably within range' : 'GPA is within range, on the lower end';
+  }
+
+  const gpaFit = fitForGpa(gpaRangeStr, userGpa);
+  const cappedByAdmitRate = admitRateCap(admitRate) && FIT_RANK[gpaFit] < FIT_RANK[admitRateCap(admitRate)];
+  if(cappedByAdmitRate && typeof admitRate === 'number'){
+    return `${gpaLine}, but only ~${Math.round(admitRate * 100)}% admit rate keeps this competitive`;
+  }
+  return gpaLine;
+}
+
+function poolForSelectedCampuses(){
+  return MAJORS.filter(m => selectedCampuses.has(m.campus));
+}
+
+// --- Hybrid matching: one tiny LLM call just to turn the interest text
+// into search keywords, then everything else (matching, fit, ranking,
+// full campus coverage) happens locally for free. No dataset is ever
+// sent to the model, so this call is a fraction of a cent regardless
+// of how many campuses are selected. ---
+
+const CONNECTOR_WORDS = new Set(['of','in','and','the','with','for','a','an','to','on','bs','ba','b','major','majors','something','stuff','things']);
+
+function tokenize(str){
+  return (str || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 2 && !CONNECTOR_WORDS.has(t));
+}
+
+const KNOWN_DISCIPLINES = Array.from(new Set(MAJORS.map(m => m.discipline))).sort();
+
+// Hand-curated cache for common, high-traffic interests — these skip the API
+// call entirely and resolve instantly, at zero cost. Only genuinely uncommon
+// or oddly-phrased interests fall through to the live model.
+const COMMON_INTEREST_CACHE = [
+  { aliases: ['premed','pre-med','pre med','pre-medicine','premedicine','medicine','med school','med','doctor'],
+    disciplines: ['Life Sciences', 'Other Health Science'],
+    keywords: ['biology','human biology','physiology','biochemistry','biological sciences','molecular biology'] },
+  { aliases: ['law','pre-law','prelaw','pre law','lawyer','legal','attorney'],
+    disciplines: ['Social Sciences', 'Public Admin'],
+    keywords: ['political science','legal studies','philosophy','criminology','public policy','government'] },
+  { aliases: ['cs','computer science','computerscience','coding','programming','software engineering','software'],
+    disciplines: ['Computer Science'],
+    keywords: ['computer science','software','data science','computer engineering','information'] },
+  { aliases: ['business','biz','entrepreneurship','entrepreneur'],
+    disciplines: ['Business'],
+    keywords: ['business administration','management','finance','marketing','accounting'] },
+  { aliases: ['psych','psychology'],
+    disciplines: ['Social Sciences', 'Life Sciences'],
+    keywords: ['psychology','cognitive science','behavioral science','neuroscience'] },
+  { aliases: ['engineering','engineer'],
+    disciplines: ['Engineering'],
+    keywords: ['engineering','mechanical','electrical','civil','structural'] },
+  { aliases: ['electrical engineering','electrical eng','electrical & computer engineering','ece'],
+    disciplines: ['Engineering'],
+    keywords: ['electrical engineering','electrical','electronics','circuits','power systems'] },
+  { aliases: ['mechanical engineering','mech e','mech eng','mechanical eng'],
+    disciplines: ['Engineering'],
+    keywords: ['mechanical engineering','mechanical','thermodynamics','robotics','design'] },
+  { aliases: ['civil engineering','civil eng'],
+    disciplines: ['Engineering'],
+    keywords: ['civil engineering','civil','structural','construction','transportation'] },
+  { aliases: ['chemical engineering','chem e','chem eng'],
+    disciplines: ['Engineering'],
+    keywords: ['chemical engineering','chemical','process engineering'] },
+  { aliases: ['aerospace engineering','aero engineering','aeronautical engineering'],
+    disciplines: ['Engineering'],
+    keywords: ['aerospace engineering','aerospace','aeronautical','astronautical'] },
+  { aliases: ['computer engineering','comp eng','computer hardware engineering'],
+    disciplines: ['Engineering', 'Computer Science'],
+    keywords: ['computer engineering','hardware','embedded systems','electrical'] },
+  { aliases: ['biomedical engineering','bioengineering','bio engineering','biomed engineering'],
+    disciplines: ['Engineering'],
+    keywords: ['biomedical engineering','bioengineering','biomedical'] },
+  { aliases: ['industrial engineering','industrial eng','systems engineering'],
+    disciplines: ['Engineering'],
+    keywords: ['industrial engineering','systems engineering','operations research'] },
+  { aliases: ['environmental engineering','environmental eng'],
+    disciplines: ['Engineering'],
+    keywords: ['environmental engineering','environmental'] },
+  { aliases: ['materials science','materials engineering','materials science and engineering'],
+    disciplines: ['Engineering', 'Physical Sciences/Math'],
+    keywords: ['materials science','materials engineering','nanoengineering'] },
+  { aliases: ['nursing','nurse'],
+    disciplines: ['Nursing', 'Other Health Science'],
+    keywords: ['nursing','health science','clinical'] },
+  { aliases: ['art','design','arts','artist'],
+    disciplines: ['Arts & Humanities'],
+    keywords: ['art','design','studio art','art history','visual arts'] },
+  { aliases: ['econ','economics'],
+    disciplines: ['Social Sciences', 'Business'],
+    keywords: ['economics','business economics','finance'] },
+  { aliases: ['data science','datascience','data','data analytics','analytics'],
+    disciplines: ['Computer Science', 'Physical Sciences/Math'],
+    keywords: ['data science','statistics','analytics','applied math'] },
+  { aliases: ['biology','bio','life science','life sciences','general biology'],
+    disciplines: ['Life Sciences'],
+    keywords: ['biology','biological sciences'] },
+  { aliases: ['human biology','human bio'],
+    disciplines: ['Life Sciences'],
+    keywords: ['human biology','physiology','anatomy','human physiology'] },
+  { aliases: ['chemistry','chem'],
+    disciplines: ['Physical Sciences/Math'],
+    keywords: ['chemistry','biochemistry','chemical'] },
+  { aliases: ['physics'],
+    disciplines: ['Physical Sciences/Math'],
+    keywords: ['physics','applied physics','astrophysics'] },
+  { aliases: ['math','mathematics'],
+    disciplines: ['Physical Sciences/Math'],
+    keywords: ['mathematics','applied mathematics','statistics'] },
+  { aliases: ['sociology','socio'],
+    disciplines: ['Social Sciences'],
+    keywords: ['sociology','social science','social welfare'] },
+  { aliases: ['communications','communication','comms','media studies','journalism'],
+    disciplines: ['Arts & Humanities', 'Social Sciences'],
+    keywords: ['communication','media studies','journalism','film'] },
+  { aliases: ['political science','poli sci','polisci','government studies'],
+    disciplines: ['Social Sciences'],
+    keywords: ['political science','government','public policy'] },
+  { aliases: ['education','teaching','teacher'],
+    disciplines: ['Education'],
+    keywords: ['education','child development','teaching'] },
+  { aliases: ['public health'],
+    disciplines: ['Public Health', 'Other Health Science'],
+    keywords: ['public health','health science','epidemiology'] },
+  { aliases: ['kinesiology','exercise science','sports medicine','athletic training','physical therapy','pt'],
+    disciplines: ['Other Health Science', 'Life Sciences'],
+    keywords: ['kinesiology','exercise science','physiology','athletic training'] },
+  { aliases: ['environmental science','environmental studies','sustainability'],
+    disciplines: ['Life Sciences', 'Physical Sciences/Math'],
+    keywords: ['environmental science','environmental studies','ecology','earth science'] },
+  { aliases: ['english','literature','creative writing'],
+    disciplines: ['Arts & Humanities'],
+    keywords: ['english','literature','creative writing','rhetoric'] },
+  { aliases: ['history'],
+    disciplines: ['Arts & Humanities'],
+    keywords: ['history','historical studies'] },
+  { aliases: ['undecided','not sure','dont know','no idea','unsure'],
+    disciplines: [],
+    keywords: [] },
+];
+
+function normalizeInterest(str){
+  return (str || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '');
+}
+
+function lookupCommonInterest(interest){
+  const norm = normalizeInterest(interest);
+  if(!norm) return null;
+
+  let bestEntry = null;
+  let bestSpecificity = 0;
+
+  for(const entry of COMMON_INTEREST_CACHE){
+    for(const alias of entry.aliases){
+      if(alias === norm){
+        // Exact match always wins outright — no ambiguity to resolve.
+        return { disciplines: entry.disciplines.slice(), keywords: entry.keywords.slice() };
+      }
+      if((alias.includes(norm) || norm.includes(alias)) && alias.length > bestSpecificity){
+        // Longer/more specific alias wins over a shorter, broader one —
+        // e.g. "electrical engineering" should beat generic "engineering".
+        bestSpecificity = alias.length;
+        bestEntry = entry;
+      }
+    }
+  }
+
+  return bestEntry ? { disciplines: bestEntry.disciplines.slice(), keywords: bestEntry.keywords.slice() } : null;
+}
+
+async function getInterestSignals(interest){
+  const cached = lookupCommonInterest(interest);
+  if(cached) return cached;
+
+  try{
+    const response = await fetch(`${API_BASE_URL}/api/interest-signals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ interest, client_id: CLIENT_ID })
+    });
+    if(!response.ok) throw new Error('API request failed: ' + response.status);
+    const parsed = await response.json();
+    const disciplines = (parsed.disciplines || []).filter(d => KNOWN_DISCIPLINES.includes(d));
+    const keywords = (parsed.keywords || []).map(k => String(k).toLowerCase().trim()).filter(Boolean);
+    if(keywords.length || disciplines.length) return { disciplines, keywords };
+  }catch(err){
+    console.error('Interest lookup failed, falling back to local tokenizing:', err);
+  }
+  // Fallback: if the tiny call ever fails, just tokenize the interest text itself, no discipline filter.
+  return { disciplines: [], keywords: tokenize(interest) };
+}
+
+// Discipline match is the dominant signal — it's what stops "Political Science"
+// or "Marine Science" from outranking real pre-med majors just because they
+// share the generic word "science". Keyword overlap on the major name is a
+// secondary, finer-grained signal used to rank within the right discipline.
+// Disciplines whose own name is a safe, unambiguous word to reward when it
+// literally appears in a major's title — Engineering, Business, etc. never
+// collide with unrelated majors the way "Science" does (that's the bug this
+// guards against: a major can get filed under a discipline like Engineering
+// by its home college/department without the word "engineering" anywhere in
+// its actual name — e.g. an ag-tech program under UC's own Engineering
+// category — and it shouldn't outrank a real "___ Engineering" major just
+// because neither had any keyword overlap with the search).
+const DISCIPLINE_NAME_BONUS_WORDS = {
+  'Engineering': ['engineering'],
+  'Business': ['business'],
+  'Nursing': ['nursing'],
+  'Pharmacy': ['pharmacy'],
+  'Architecture': ['architecture'],
+};
+
+function scoreMajor(major, keywords, disciplines){
+  let score = 0;
+  if(disciplines && disciplines.includes(major.discipline)) score += 12;
+
+  const nameLower = major.major.toLowerCase();
+  keywords.forEach(kw => {
+    const kwLower = kw.toLowerCase().trim();
+    if(kwLower.length >= 4 && nameLower.includes(kwLower)) score += 5;
+  });
+
+  // Token overlap uses the major's own NAME only — not the discipline label.
+  // Concatenating the discipline in here used to mean every major in, say,
+  // the Engineering discipline automatically got credit for the word
+  // "engineering" even when their actual title never said it, which is
+  // exactly what let a mislabeled non-engineering major tie with real
+  // "___ Engineering" majors.
+  const tokens = new Set(tokenize(major.major));
+  keywords.forEach(kw => {
+    tokenize(kw).forEach(kt => {
+      tokens.forEach(t => {
+        if(t === kt) score += 2;
+        else if(kt.length >= 4 && t.length >= 4 && (t.includes(kt) || kt.includes(t))) score += 1;
+      });
+    });
+  });
+
+  const bonusWords = DISCIPLINE_NAME_BONUS_WORDS[major.discipline];
+  if(bonusWords && bonusWords.some(w => tokens.has(w))){
+    score += 3;
+  }
+
+  return score;
+}
+
+// Picks the best two distinct majors per campus by relevance, falling back
+// to highest admit rate when nothing matches well — so every selected
+// campus always gets a primary and an alternate.
+function matchCampus(pool, campus, keywords, disciplines, gpa){
+  const fitRank = FIT_RANK;
+  const candidates = pool
+    .filter(m => m.campus === campus)
+    .map(m => ({ ...m, _score: scoreMajor(m, keywords, disciplines), _fit: combinedFit(m.gpaRange, gpa, m.admitRate) }));
+
+  candidates.sort((a, b) => {
+    if(b._score !== a._score) return b._score - a._score;
+    const r = fitRank[a._fit] - fitRank[b._fit];
+    if(r !== 0) return r;
+    return (b.admitRate || 0) - (a.admitRate || 0);
+  });
+
+  const [primary, alternate] = candidates;
+  const strip = m => m ? {
+    campus: m.campus, major: m.major, discipline: m.discipline, gpaRange: m.gpaRange,
+    admitRate: m.admitRate, fit: m._fit, reasoning: describeFit(m.gpaRange, gpa, m.admitRate)
+  } : null;
+  return { primary: strip(primary), alternate: strip(alternate) };
+}
+
+function buildMatches(pool, campusList, keywords, disciplines, gpa){
+  const picks = [];
+  const alternates = [];
+  campusList.forEach(campus => {
+    const { primary, alternate } = matchCampus(pool, campus, keywords, disciplines, gpa);
+    if(primary) picks.push(primary);
+    if(alternate) alternates.push(alternate);
+  });
+  return { picks, alternates };
+}
+
+
+function buildNote(picks, interest, gpa){
+  if(!picks.length) return '';
+  const total = picks.length;
+  const gpaStr = (typeof gpa === 'number' && !isNaN(gpa)) ? gpa.toFixed(2) : gpa;
+  const safety = picks.filter(p => p.fit === 'safety');
+  const target = picks.filter(p => p.fit === 'match');
+  const reach = picks.filter(p => p.fit === 'reach');
+
+  const campusNames = arr => arr.map(p => p.campus.replace('UC ', '')).join(', ');
+
+  if(safety.length === total){
+    return `With a ${gpaStr} GPA, your top "${interest}" match is a safety at all ${total} campuses you selected.`;
+  }
+  if(reach.length === total){
+    return `With a ${gpaStr} GPA, your top "${interest}" match is a reach at all ${total} campuses you selected — the alternates below are worth a close look.`;
+  }
+  if(target.length === total){
+    return `With a ${gpaStr} GPA, your top "${interest}" match sits right in the target range at all ${total} campuses you selected.`;
+  }
+
+  const parts = [];
+  if(safety.length) parts.push(`safety at ${campusNames(safety)}`);
+  if(target.length) parts.push(`target at ${campusNames(target)}`);
+  if(reach.length) parts.push(`reach at ${campusNames(reach)}`);
+
+  return `With a ${gpaStr} GPA, your top "${interest}" match breaks down as ${parts.join('; ')}.`;
+}
+
+function planCellHTML(item){
+  const badgeMap = { safety: ['safety','Safety'], match: ['match','Target'], reach: ['reach','Reach'] };
+  const [cls, label] = badgeMap[item.fit] || ['match', item.fit || ''];
+  const admitPct = typeof item.admitRate === 'number' ? Math.round(item.admitRate * 100) + '%' : '';
+  return `
+    <div class="plan-entry">
+      <div class="plan-major">${item.major}</div>
+      <div>${item.gpaRange ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(20,32,51,0.55);">${item.gpaRange}</span> ` : ''}${admitPct ? `<span class="plan-admit-rate">${admitPct}</span> ` : ''}<span class="plan-badge ${cls}">${label}</span></div>
+    </div>
+  `;
+}
+
+function planCellGroup(items){
+  if(!items || items.length === 0){
+    return `<span class="plan-empty">No match found</span>`;
+  }
+  return items.map(item => planCellHTML(item)).join('');
+}
+
+function buildFinalPlan(picks, alternates, campusList){
+  const rows = campusList.map(campus => {
+    const campusPicks = picks.filter(p => p.campus === campus);
+    const campusAlts = alternates.filter(a => a.campus === campus);
+    return `
+      <tr>
+        <td class="campus-cell">${campus.replace('UC ', '')}</td>
+        <td>${planCellGroup(campusPicks)}</td>
+        <td>${planCellGroup(campusAlts)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="final-plan">
+      <div class="section-label">Final plan</div>
+      <table class="plan-table">
+        <thead>
+          <tr>
+            <th>Campus</th>
+            <th>Primary major(s)</th>
+            <th>Alternate major(s)</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function handleSubmit(){
+  const gpa = parseFloat(gpaInput.value);
+  const interest = interestInput.value.trim();
+
+  if(isNaN(gpa) || gpa < 1 || gpa > 4.0){
+    resultsEl.innerHTML = `<div class="state error">Enter a GPA between 1.0 and 4.0.</div>`;
+    return;
+  }
+  if(!interest){
+    resultsEl.innerHTML = `<div class="state error">Tell us a major or career direction — even a vague one works.</div>`;
+    return;
+  }
+  if(selectedCampuses.size === 0){
+    resultsEl.innerHTML = `<div class="state error">Check at least one UC above.</div>`;
+    return;
+  }
+
+  goBtn.disabled = true;
+  resultsEl.innerHTML = `<div class="state"><span class="spinner"></span>Matching your GPA against admit data...</div>`;
+
+  try{
+    const pool = poolForSelectedCampuses();
+    const campusList = Array.from(selectedCampuses);
+    const { keywords, disciplines } = await getInterestSignals(interest);
+    const { picks: rawPicks, alternates: rawAlternates } = buildMatches(pool, campusList, keywords, disciplines, gpa);
+    const picks = sortByFit(rawPicks);
+    const alternates = rawAlternates;
+    const alternatesForCards = alternates.slice(0, 3);
+    const note = buildNote(picks, interest, gpa);
+
+    let html = '';
+    if(note){
+      html += `<p class="note">${note}</p>`;
+    }
+    if(picks.length){
+      html += `<div class="section-label">Best matches for you</div>`;
+      html += `<div class="cards">${picks.map(p => renderCard(p, gpa, false)).join('')}</div>`;
+    }
+    if(alternatesForCards.length){
+      html += `<div class="section-label">Alternates worth a look</div>`;
+      html += `<div class="cards">${alternatesForCards.map(a => renderCard(a, gpa, true)).join('')}</div>`;
+    }
+    if(picks.length || alternates.length){
+      html += buildFinalPlan(picks, alternates, campusList);
+    }
+    if(!html){
+      html = `<div class="state">No matches found for the UCs you selected — try a broader term or check more campuses.</div>`;
+    }
+    resultsEl.innerHTML = html;
+  }catch(err){
+    console.error(err);
+    resultsEl.innerHTML = `<div class="state error">Something went wrong. Try again in a moment.</div>`;
+  }finally{
+    goBtn.disabled = false;
+  }
+}
+
+goBtn.addEventListener('click', handleSubmit);
+[gpaInput, interestInput].forEach(el => {
+  el.addEventListener('keydown', e => { if(e.key === 'Enter') handleSubmit(); });
+});
+</script>
+</body>
+</html>
