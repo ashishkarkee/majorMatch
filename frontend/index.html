@@ -879,11 +879,19 @@ function matchCampus(pool, campus, keywords, disciplines, gpa){
       const betterFit = relatedRest.slice().sort((a, b) => {
         const r = fitRank[a._fit] - fitRank[b._fit];
         if(r !== 0) return r;
+        if(a._fit === 'reach'){
+          // Nothing here actually fits yet — prefer whichever option is
+          // closest to being in range (lower GPA floor), then higher
+          // admit rate as a secondary tiebreak, over raw relevance.
+          const aLo = (parseRange(a.gpaRange) || [Infinity])[0];
+          const bLo = (parseRange(b.gpaRange) || [Infinity])[0];
+          if(aLo !== bLo) return aLo - bLo;
+          return (b.admitRate || 0) - (a.admitRate || 0);
+        }
+        // Both already fit reasonably well — prefer the more relevant one.
         return b._score - a._score;
       })[0];
-      if(!alternate || fitRank[betterFit._fit] < fitRank[alternate._fit]){
-        alternate = betterFit;
-      }
+      alternate = betterFit;
     }
   }
 
