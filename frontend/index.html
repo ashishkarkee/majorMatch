@@ -894,6 +894,16 @@ function matchCampus(pool, campus, keywords, disciplines, gpa){
   return { primary: strip(primary), alternate: strip(alternate) };
 }
 
+function buildMatches(pool, campusList, keywords, disciplines, gpa){
+  const picks = [];
+  const alternates = [];
+  campusList.forEach(campus => {
+    const { primary, alternate } = matchCampus(pool, campus, keywords, disciplines, gpa);
+    if(primary) picks.push(primary);
+    if(alternate) alternates.push(alternate);
+  });
+  return { picks, alternates };
+}
 
 function buildNote(picks, interest, gpa){
   if(!picks.length) return '';
