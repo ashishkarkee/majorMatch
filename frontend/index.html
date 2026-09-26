@@ -853,7 +853,7 @@ function scoreMajor(major, keywords, disciplines){
 // Instead it looks through every still-related candidate for the best-
 // FITTING one — so a related but less competitive major (Applied Math,
 // Math-CS) can surface as the alternate instead of a second Reach.
-const RELEVANCE_FLOOR = 10;
+const RELEVANCE_FLOOR = 15;
 
 function matchCampus(pool, campus, keywords, disciplines, gpa){
   const fitRank = FIT_RANK;
