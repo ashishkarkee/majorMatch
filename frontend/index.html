@@ -636,7 +636,7 @@ const COMMON_INTEREST_CACHE = [
     keywords: ['political science','legal studies','philosophy','criminology','public policy','government'] },
   { aliases: ['cs','computer science','computerscience','coding','programming','software engineering','software'],
     disciplines: ['Computer Science'],
-    keywords: ['computer science','software','data science','computer engineering','information'] },
+    keywords: ['computer science','software','data science','computer engineering','information','applied math','applied mathematics'] },
   { aliases: ['business','biz','entrepreneurship','entrepreneur'],
     disciplines: ['Business'],
     keywords: ['business administration','management','finance','marketing','accounting'] },
@@ -843,36 +843,55 @@ function scoreMajor(major, keywords, disciplines){
 // Picks the best two distinct majors per campus by relevance, falling back
 // to highest admit rate when nothing matches well — so every selected
 // campus always gets a primary and an alternate.
+// Picks the best two distinct majors per campus by relevance, falling back
+// to highest admit rate when nothing matches well — so every selected
+// campus always gets a primary and an alternate.
+//
+// If the single best-relevance match (e.g. Computer Science) is a Reach,
+// the alternate no longer just falls back to the next-highest scoring
+// major (often something equally competitive, like Data Science).
+// Instead it looks through every still-related candidate for the best-
+// FITTING one — so a related but less competitive major (Applied Math,
+// Math-CS) can surface as the alternate instead of a second Reach.
+const RELEVANCE_FLOOR = 5;
+
 function matchCampus(pool, campus, keywords, disciplines, gpa){
   const fitRank = FIT_RANK;
   const candidates = pool
     .filter(m => m.campus === campus)
     .map(m => ({ ...m, _score: scoreMajor(m, keywords, disciplines), _fit: combinedFit(m.gpaRange, gpa, m.admitRate) }));
 
-  candidates.sort((a, b) => {
+  const byRelevance = candidates.slice().sort((a, b) => {
     if(b._score !== a._score) return b._score - a._score;
     const r = fitRank[a._fit] - fitRank[b._fit];
     if(r !== 0) return r;
     return (b.admitRate || 0) - (a.admitRate || 0);
   });
 
-  const [primary, alternate] = candidates;
+  const primary = byRelevance[0];
+  let alternate = byRelevance[1];
+
+  if(primary && primary._fit === 'reach'){
+    const relatedRest = byRelevance
+      .slice(1)
+      .filter(m => m._score >= RELEVANCE_FLOOR && m.major !== primary.major);
+    if(relatedRest.length){
+      const betterFit = relatedRest.slice().sort((a, b) => {
+        const r = fitRank[a._fit] - fitRank[b._fit];
+        if(r !== 0) return r;
+        return b._score - a._score;
+      })[0];
+      if(!alternate || fitRank[betterFit._fit] < fitRank[alternate._fit]){
+        alternate = betterFit;
+      }
+    }
+  }
+
   const strip = m => m ? {
     campus: m.campus, major: m.major, discipline: m.discipline, gpaRange: m.gpaRange,
     admitRate: m.admitRate, fit: m._fit, reasoning: describeFit(m.gpaRange, gpa, m.admitRate)
   } : null;
   return { primary: strip(primary), alternate: strip(alternate) };
-}
-
-function buildMatches(pool, campusList, keywords, disciplines, gpa){
-  const picks = [];
-  const alternates = [];
-  campusList.forEach(campus => {
-    const { primary, alternate } = matchCampus(pool, campus, keywords, disciplines, gpa);
-    if(primary) picks.push(primary);
-    if(alternate) alternates.push(alternate);
-  });
-  return { picks, alternates };
 }
 
 
