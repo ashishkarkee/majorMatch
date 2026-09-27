@@ -6,6 +6,12 @@ from contextlib import closing
 from datetime import datetime, timezone
 from typing import Optional
 
+try:
+    import psycopg2
+    import psycopg2.extras
+except ImportError:
+    psycopg2 = None
+
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,9 +32,14 @@ ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").spl
 # This is what protects your API bill from a runaway client or abuse.
 RATE_LIMIT = os.environ.get("RATE_LIMIT", "30/hour")
 
-# Usage tracking — logs every search to a local SQLite file so you can see
-# total volume and which interests come up most. Protect the dashboard with
-# a token only you know; set it as an env var, never commit it.
+# Usage tracking — logs every search so you can see total volume and which
+# interests come up most. If DATABASE_URL is set (a Postgres connection
+# string, e.g. from Render's free Postgres add-on), that's used and survives
+# every redeploy. Otherwise it falls back to a local SQLite file, which is
+# fine for local dev but Render's free tier does NOT guarantee that file
+# survives a redeploy. Protect the dashboard with a token only you know;
+# set it as an env var, never commit it.
+DATABASE_URL = os.environ.get("DATABASE_URL")
 DB_PATH = os.environ.get("DB_PATH", "usage.db")
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
@@ -66,7 +77,7 @@ COMMON_INTEREST_CACHE = [
     {
         "aliases": ["cs", "computer science", "computerscience", "coding", "programming", "software engineering", "software"],
         "disciplines": ["Computer Science"],
-        "keywords": ["computer science", "software", "data science", "computer engineering", "information"],
+        "keywords": ["computer science", "software", "data science", "computer engineering", "information", "applied math", "applied mathematics"],
     },
     {
         "aliases": ["business", "biz", "entrepreneurship", "entrepreneur"],
@@ -84,42 +95,42 @@ COMMON_INTEREST_CACHE = [
         "keywords": ["engineering", "mechanical", "electrical", "civil", "structural"],
     },
     {
-        "aliases": ["electrical engineering", "electrical eng", "electrical & computer engineering", "ece"],
+        "aliases": ["electrical engineering", "electrical eng", "electrical & computer engineering", "ece", "ee"],
         "disciplines": ["Engineering"],
         "keywords": ["electrical engineering", "electrical", "electronics", "circuits", "power systems"],
     },
     {
-        "aliases": ["mechanical engineering", "mech e", "mech eng", "mechanical eng"],
+        "aliases": ["mechanical engineering", "mech e", "mech eng", "mechanical eng", "me"],
         "disciplines": ["Engineering"],
         "keywords": ["mechanical engineering", "mechanical", "thermodynamics", "robotics", "design"],
     },
     {
-        "aliases": ["civil engineering", "civil eng"],
+        "aliases": ["civil engineering", "civil eng", "civ e", "ce"],
         "disciplines": ["Engineering"],
         "keywords": ["civil engineering", "civil", "structural", "construction", "transportation"],
     },
     {
-        "aliases": ["chemical engineering", "chem e", "chem eng"],
+        "aliases": ["chemical engineering", "chem e", "chem eng", "che"],
         "disciplines": ["Engineering"],
         "keywords": ["chemical engineering", "chemical", "process engineering"],
     },
     {
-        "aliases": ["aerospace engineering", "aero engineering", "aeronautical engineering"],
+        "aliases": ["aerospace engineering", "aero engineering", "aeronautical engineering", "ae"],
         "disciplines": ["Engineering"],
         "keywords": ["aerospace engineering", "aerospace", "aeronautical", "astronautical"],
     },
     {
-        "aliases": ["computer engineering", "comp eng", "computer hardware engineering"],
+        "aliases": ["computer engineering", "comp eng", "computer hardware engineering", "coe"],
         "disciplines": ["Engineering", "Computer Science"],
         "keywords": ["computer engineering", "hardware", "embedded systems", "electrical"],
     },
     {
-        "aliases": ["biomedical engineering", "bioengineering", "bio engineering", "biomed engineering"],
+        "aliases": ["biomedical engineering", "bioengineering", "bio engineering", "biomed engineering", "bme"],
         "disciplines": ["Engineering"],
         "keywords": ["biomedical engineering", "bioengineering", "biomedical"],
     },
     {
-        "aliases": ["industrial engineering", "industrial eng", "systems engineering"],
+        "aliases": ["industrial engineering", "industrial eng", "systems engineering", "ie"],
         "disciplines": ["Engineering"],
         "keywords": ["industrial engineering", "systems engineering", "operations research"],
     },
@@ -129,7 +140,7 @@ COMMON_INTEREST_CACHE = [
         "keywords": ["environmental engineering", "environmental"],
     },
     {
-        "aliases": ["materials science", "materials engineering", "materials science and engineering"],
+        "aliases": ["materials science", "materials engineering", "materials science and engineering", "mse"],
         "disciplines": ["Engineering", "Physical Sciences/Math"],
         "keywords": ["materials science", "materials engineering", "nanoengineering"],
     },
@@ -246,11 +257,8 @@ def lookup_common_interest(interest: str) -> Optional[dict]:
     for entry in COMMON_INTEREST_CACHE:
         for alias in entry["aliases"]:
             if alias == norm:
-                # Exact match always wins outright — no ambiguity to resolve.
                 return {"disciplines": list(entry["disciplines"]), "keywords": list(entry["keywords"])}
-            if (alias in norm or norm in alias) and len(alias) > best_specificity:
-                # Longer/more specific alias wins over a shorter, broader one —
-                # e.g. "electrical engineering" should beat generic "engineering".
+            if len(alias) >= 3 and (alias in norm or norm in alias) and len(alias) > best_specificity:
                 best_specificity = len(alias)
                 best_entry = entry
 
@@ -276,6 +284,24 @@ Respond with ONLY valid JSON, no markdown fences, no preamble: {{"disciplines": 
 # ---------------------------------------------------------------------------
 
 def init_db():
+    if DATABASE_URL:
+        with closing(psycopg2.connect(DATABASE_URL)) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS searches (
+                        id SERIAL PRIMARY KEY,
+                        interest TEXT NOT NULL,
+                        normalized TEXT NOT NULL,
+                        cached BOOLEAN NOT NULL,
+                        client_id TEXT,
+                        created_at TIMESTAMPTZ NOT NULL
+                    )
+                    """
+                )
+            conn.commit()
+        return
+
     with closing(sqlite3.connect(DB_PATH)) as conn:
         conn.execute(
             """
@@ -289,7 +315,6 @@ def init_db():
             )
             """
         )
-        # Backfill-safe: add client_id to a database created before this column existed.
         cols = [row[1] for row in conn.execute("PRAGMA table_info(searches)").fetchall()]
         if "client_id" not in cols:
             conn.execute("ALTER TABLE searches ADD COLUMN client_id TEXT")
@@ -297,8 +322,17 @@ def init_db():
 
 
 def log_search(interest: str, normalized: str, cached: bool, client_id: Optional[str]):
-    # Logging failures should never break the actual request.
     try:
+        if DATABASE_URL:
+            with closing(psycopg2.connect(DATABASE_URL)) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO searches (interest, normalized, cached, client_id, created_at) VALUES (%s, %s, %s, %s, %s)",
+                        (interest, normalized, cached, client_id, datetime.now(timezone.utc)),
+                    )
+                conn.commit()
+            return
+
         with closing(sqlite3.connect(DB_PATH)) as conn:
             conn.execute(
                 "INSERT INTO searches (interest, normalized, cached, client_id, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -310,6 +344,53 @@ def log_search(interest: str, normalized: str, cached: bool, client_id: Optional
 
 
 def get_stats() -> dict:
+    if DATABASE_URL:
+        with closing(psycopg2.connect(DATABASE_URL)) as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("SELECT COUNT(*) AS c FROM searches")
+                total = cur.fetchone()["c"]
+                cur.execute("SELECT COUNT(*) AS c FROM searches WHERE cached = TRUE")
+                cached_count = cur.fetchone()["c"]
+                cur.execute("SELECT COUNT(*) AS c FROM searches WHERE created_at >= NOW() - INTERVAL '1 day'")
+                last_24h = cur.fetchone()["c"]
+                cur.execute("SELECT COUNT(*) AS c FROM searches WHERE created_at >= NOW() - INTERVAL '7 day'")
+                last_7d = cur.fetchone()["c"]
+                cur.execute("SELECT COUNT(*) AS c FROM searches WHERE created_at >= NOW() - INTERVAL '14 day'")
+                last_14d = cur.fetchone()["c"]
+                cur.execute(
+                    "SELECT COUNT(DISTINCT client_id) AS c FROM searches WHERE client_id IS NOT NULL AND client_id != ''"
+                )
+                unique_visitors = cur.fetchone()["c"]
+                cur.execute(
+                    """
+                    SELECT COUNT(DISTINCT client_id) AS c FROM searches
+                    WHERE client_id IS NOT NULL AND client_id != ''
+                    AND created_at >= NOW() - INTERVAL '14 day'
+                    """
+                )
+                unique_visitors_14d = cur.fetchone()["c"]
+                cur.execute(
+                    """
+                    SELECT normalized, COUNT(*) AS count
+                    FROM searches
+                    GROUP BY normalized
+                    ORDER BY count DESC
+                    LIMIT 25
+                    """
+                )
+                top = cur.fetchall()
+
+        return {
+            "total_searches": total,
+            "unique_visitors": unique_visitors,
+            "unique_visitors_last_14d": unique_visitors_14d,
+            "searches_last_24h": last_24h,
+            "searches_last_7d": last_7d,
+            "searches_last_14d": last_14d,
+            "cache_hit_rate": round(cached_count / total, 3) if total else None,
+            "top_interests": [{"interest": r["normalized"], "count": r["count"]} for r in top],
+        }
+
     with closing(sqlite3.connect(DB_PATH)) as conn:
         conn.row_factory = sqlite3.Row
         total = conn.execute("SELECT COUNT(*) AS c FROM searches").fetchone()["c"]
@@ -388,9 +469,25 @@ class InterestRequest(BaseModel):
     client_id: Optional[str] = None
 
 
+class TrackRequest(BaseModel):
+    interest: str
+    client_id: Optional[str] = None
+
+
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.post("/api/track")
+@limiter.limit(RATE_LIMIT)
+async def track_search(payload: TrackRequest, request: Request):
+    interest = (payload.interest or "").strip()
+    if not interest:
+        return {"ok": False}
+    interest = interest[:200]
+    log_search(interest, normalize(interest), cached=True, client_id=payload.client_id)
+    return {"ok": True}
 
 
 @app.post("/api/interest-signals")
@@ -402,7 +499,6 @@ async def interest_signals(payload: InterestRequest, request: Request):
     if len(interest) > 200:
         raise HTTPException(status_code=400, detail="interest is too long")
 
-    # Free path: common interests never touch the Anthropic API.
     cached = lookup_common_interest(interest)
     log_search(interest, normalize(interest), cached=bool(cached), client_id=payload.client_id)
     if cached:
@@ -447,8 +543,6 @@ async def interest_signals(payload: InterestRequest, request: Request):
     try:
         parsed = json.loads(clean)
     except json.JSONDecodeError:
-        # Fail soft: return no signals rather than a broken response —
-        # the frontend already falls back to local tokenizing on empty results.
         return {"disciplines": [], "keywords": []}
 
     disciplines = [d for d in parsed.get("disciplines", []) if d in KNOWN_DISCIPLINES]
@@ -518,4 +612,3 @@ async def admin_dashboard(token: Optional[str] = None):
     </html>
     """
     return HTMLResponse(content=html)
-

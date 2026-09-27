@@ -764,9 +764,28 @@ function lookupCommonInterest(interest){
   return bestEntry ? { disciplines: bestEntry.disciplines.slice(), keywords: bestEntry.keywords.slice() } : null;
 }
 
+// Fire-and-forget usage log. Called whenever a search is resolved entirely
+// from the local cache (never reaching /api/interest-signals) — without
+// this, those searches would be invisible in the usage dashboard, even
+// though they're the majority of real traffic.
+function trackSearch(interest){
+  try{
+    fetch(`${API_BASE_URL}/api/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ interest, client_id: CLIENT_ID })
+    }).catch(() => {});
+  }catch(err){
+    // Tracking must never block or break the actual search.
+  }
+}
+
 async function getInterestSignals(interest){
   const cached = lookupCommonInterest(interest);
-  if(cached) return cached;
+  if(cached){
+    trackSearch(interest);
+    return cached;
+  }
 
   try{
     const response = await fetch(`${API_BASE_URL}/api/interest-signals`, {
