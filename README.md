@@ -1,4 +1,4 @@
-https://major-match-gamma.vercel.app/
+dont be shy, try it for your self! ----> https://major-match-gamma.vercel.app/
 
 ## What it does
 
