@@ -25,7 +25,7 @@ Every search is logged, which let me see that a small set of majors and terms ac
 ## Results so far
 
 - 500+ majors indexed across all 9 UC campuses
-- 118 searches, 39 unique users
+- 130+ searches, 40+ unique users
 - 80% of searches served from cache
 - Total Claude API spend: under $0.01
   <img width="909" height="164" alt="image" src="https://github.com/user-attachments/assets/1318a241-e9a1-4ec3-9bdf-30ccd2fa56b0" />
